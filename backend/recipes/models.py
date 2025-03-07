@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 
 class Ingredient(models.Model):
@@ -12,6 +13,28 @@ class Ingredient(models.Model):
         ordering = ('id',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+
+    name = models.CharField('Название тэга', max_length=MAX_CHAR_LENGTH)
+    color = models.CharField('Цвет', max_length=MAX_COLOR_LENGTH)
+    slug = models.SlugField(
+        'Slug',
+        max_length=MAX_CHAR_LENGTH,
+        unique=True,
+        validators=[
+            RegexValidator(regex=REGEX, message='Недопустимый символ')
+        ],
+    )
+
+    class Meta:
+        ordering = ('id',)
+        verbose_name = 'Тэг'
+        verbose_name_plural = 'Тэги'
 
     def __str__(self):
         return self.name
@@ -41,3 +64,27 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RecipeIngredient(models.Model):
+
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipes',
+        verbose_name='Рецепт',
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        related_name='ingredients',
+        verbose_name='Ингредиент',
+    )
+    amount = models.IntegerField('Количество')
+
+    class Meta:
+        verbose_name = 'Ингредиент для рецепта'
+        verbose_name_plural = 'Ингредиенты для рецепта'
+
+    def __str__(self):
+        return self.recipe.name
