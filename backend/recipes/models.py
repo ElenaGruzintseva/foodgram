@@ -1,8 +1,30 @@
 from django.db import models
 from django.core.validators import RegexValidator
+from django.db.models import Exists, OuterRef
 
-from foodgram.constants import MAX_CHAR_LENGTH, MAX_COLOR_LENGTH
+from foodgram.constants import MAX_CHAR_LENGTH, MAX_COLOR_LENGTH, REGEX
 from users.models import User
+
+
+class RecipeQuerySet(models.QuerySet):
+
+    def favorited(self, user_id):
+        return self.annotate(
+            is_favorited=Exists(
+                FavoriteRecipe.objects.filter(
+                    recipe=OuterRef('pk'), user=user_id
+                )
+            )
+        )
+
+    def in_shopping_cart(self, user_id):
+        return self.annotate(
+            is_in_shopping_cart=Exists(
+                ShoppingList.objects.filter(
+                    recipe=OuterRef('pk'), user=user_id
+                )
+            )
+        )
 
 
 class Ingredient(models.Model):
@@ -28,7 +50,10 @@ class Tag(models.Model):
     slug = models.SlugField(
         'Slug',
         max_length=MAX_CHAR_LENGTH,
-        unique=True
+        unique=True,
+        validators=[
+            RegexValidator(regex=REGEX, message='Недопустимый символ')
+        ],
     )
 
     class Meta:
@@ -56,6 +81,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
+    objects = RecipeQuerySet.as_manager()
 
     class Meta:
         ordering = ('-id',)
@@ -85,6 +111,64 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
+
+    def __str__(self):
+        return self.recipe.name
+
+
+class FavoriteRecipe(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        related_name='favorite_recipes',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='favorited_by',
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='unique_user_favorite_recipe'
+            )
+        ]
+
+    def __str__(self):
+        return self.recipe.name
+
+
+class ShoppingList(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        related_name='shopping_lists',
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        related_name='in_shopping_lists',
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+    )
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='unique_user_shopping_list'
+            )
+        ]
 
     def __str__(self):
         return self.recipe.name
