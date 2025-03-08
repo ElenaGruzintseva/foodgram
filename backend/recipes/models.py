@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.validators import RegexValidator
 
+from foodgram.constants import MAX_CHAR_LENGTH, MAX_COLOR_LENGTH
+from users.models import User
+
 
 class Ingredient(models.Model):
 
@@ -25,10 +28,7 @@ class Tag(models.Model):
     slug = models.SlugField(
         'Slug',
         max_length=MAX_CHAR_LENGTH,
-        unique=True,
-        validators=[
-            RegexValidator(regex=REGEX, message='Недопустимый символ')
-        ],
+        unique=True
     )
 
     class Meta:
