@@ -5,9 +5,9 @@ import djoser.serializers
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from api.serializers import RecipeReadSerializer
 from recipes.models import Recipe
 from users.models import Subscribe, User
-from api.serializers import RecipeReadSerializer
 
 
 class Base64ImageField(serializers.ImageField):
@@ -19,6 +19,14 @@ class Base64ImageField(serializers.ImageField):
             data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
 
         return super().to_internal_value(data)
+
+
+class AvatarUserSerializer(serializers.ModelSerializer):
+    avatar = Base64ImageField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('avatar',)
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -62,7 +70,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         recipes_limit = request.query_params.get('recipes_limit', None)
 
         if recipes_limit is not None:
-            recipes = Recipe.objects.filter(author=obj)[: int(recipes_limit)]
+            recipes = Recipe.objects.filter(author=obj)[:recipes_limit]
         else:
             recipes = Recipe.objects.filter(author=obj)
 
@@ -100,14 +108,6 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
         return SubscriptionSerializer(
             instance.author, context={'request': request}
         ).data
-
-
-class AvatarUserSerializer(serializers.ModelSerializer):
-    avatar = Base64ImageField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('avatar',)
 
 
 class UserGETSerializer(djoser.serializers.UserSerializer):

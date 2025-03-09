@@ -1,16 +1,13 @@
 from django.shortcuts import get_object_or_404
-
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet
 
-from users.models import Subscribe, User
-
 from api.permissions import OwnerOnlyPermission
+from .models import Subscribe, User
 from .serializers import (
     AvatarUserSerializer,
     SubscriptionCreateSerializer,
@@ -26,6 +23,17 @@ class MeView(APIView):
     def get(self, request):
         serializer = UserGETSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserAvatar(UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    serializer_class = AvatarUserSerializer
+    permission_classes = (OwnerOnlyPermission,)
+
+    def get_object(self):
+        return self.request.user
+
+    def perform_destroy(self, instance):
+        instance.avatar.delete()
 
 
 class SubscribeView(APIView):
@@ -60,17 +68,6 @@ class SubscribeView(APIView):
             {'ошибка': 'Вы не подписаны на этого автора.'},
             status=status.HTTP_400_BAD_REQUEST,
         )
-
-
-class UserAvatar(UpdateModelMixin, DestroyModelMixin, GenericViewSet):
-    serializer_class = AvatarUserSerializer
-    permission_classes = (OwnerOnlyPermission,)
-
-    def get_object(self):
-        return self.request.user
-
-    def perform_destroy(self, instance):
-        instance.avatar.delete()
 
 
 class SubscriptionsListView(generics.ListAPIView):

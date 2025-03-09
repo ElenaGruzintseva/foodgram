@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
-
 from django.contrib.auth.models import AbstractUser
+
 from foodgram.constants import MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, REGEX
 
 

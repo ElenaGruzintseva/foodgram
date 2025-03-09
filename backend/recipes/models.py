@@ -2,7 +2,13 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.db.models import Exists, OuterRef
 
-from foodgram.constants import MAX_CHAR_LENGTH, MAX_COLOR_LENGTH, REGEX
+from foodgram.constants import (
+    MAX_CHAR_LENGTH,
+    MAX_RECIPE_LENGTH,
+    MAX_TAG_LENGTH,
+    MAX_UNIT_LENGTH,
+    TAG_REGEX
+    )
 from users.models import User
 
 
@@ -31,7 +37,7 @@ class Ingredient(models.Model):
 
     name = models.CharField('Название', max_length=MAX_CHAR_LENGTH)
     measurement_unit = models.CharField(
-        'Единица измерения', max_length=MAX_CHAR_LENGTH
+        'Единица измерения', max_length=MAX_UNIT_LENGTH
     )
 
     class Meta:
@@ -45,14 +51,13 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
 
-    name = models.CharField('Название тэга', max_length=MAX_CHAR_LENGTH)
-    color = models.CharField('Цвет', max_length=MAX_COLOR_LENGTH)
+    name = models.CharField('Название тэга', max_length=MAX_TAG_LENGTH)
     slug = models.SlugField(
         'Slug',
-        max_length=MAX_CHAR_LENGTH,
+        max_length=MAX_TAG_LENGTH,
         unique=True,
         validators=[
-            RegexValidator(regex=REGEX, message='Недопустимый символ')
+            RegexValidator(regex=TAG_REGEX, message='Недопустимый символ')
         ],
     )
 
@@ -67,7 +72,7 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
 
-    name = models.CharField('Название рецепта', max_length=MAX_CHAR_LENGTH)
+    name = models.CharField('Название рецепта', max_length=MAX_RECIPE_LENGTH)
     ingredients = models.ManyToManyField(
         Ingredient, through='RecipeIngredient'
     )
