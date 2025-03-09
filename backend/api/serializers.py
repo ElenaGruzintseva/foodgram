@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 
-from users.serializers import Base64ImageField, UserGETSerializer, 
+from users.serializers import Base64ImageField, UserGETSerializer
 from recipes.models import (
     Ingredient,
     FavoriteRecipe,
@@ -10,7 +10,8 @@ from recipes.models import (
     ShoppingList,
     Tag
 )
-import MIN_AMOUNT, MIN_COOKING_TIME
+from foodgram.constants import MIN_AMOUNT, MIN_COOKING_TIME
+
 
 class RecipeReadSerializer(serializers.ModelSerializer):
 
