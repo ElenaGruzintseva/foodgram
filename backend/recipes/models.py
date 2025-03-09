@@ -67,12 +67,12 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
 
-    tags = models.ManyToManyField(Tag, verbose_name='Тэг')
+    name = models.CharField('Название рецепта', max_length=MAX_CHAR_LENGTH)
     ingredients = models.ManyToManyField(
         Ingredient, through='RecipeIngredient'
     )
+    tags = models.ManyToManyField(Tag, verbose_name='Тэг')
     text = models.TextField('Описание')
-    name = models.CharField('Название рецепта', max_length=MAX_CHAR_LENGTH)
     image = models.ImageField('Фотография', upload_to='recipes/images/')
     cooking_time = models.IntegerField('Время приготовления')
     author = models.ForeignKey(
