@@ -5,9 +5,7 @@ import djoser.serializers
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import (
-    Recipe
-)
+from recipes.models import Recipe
 from users.models import Subscribe, User
 from api.serializers import RecipeReadSerializer
 
