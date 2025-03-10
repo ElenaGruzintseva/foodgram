@@ -7,13 +7,13 @@ from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet
 
 from api.permissions import OwnerOnlyPermission
-from .models import Subscribe, User
-from .serializers import (
+from api.serializers import (
     AvatarUserSerializer,
     SubscriptionCreateSerializer,
     SubscriptionSerializer,
     UserGETSerializer
 )
+from .models import Subscribe, User
 
 
 class MeView(APIView):

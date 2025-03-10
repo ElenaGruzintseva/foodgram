@@ -42,9 +42,9 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
 
-    list_display = ('name', 'color', 'slug')
-    list_filter = ('name', 'color')
-    search_fields = ('name', 'color')
+    list_display = ('name', 'slug')
+    list_filter = ('name',)
+    search_fields = ('name',)
 
 
 @admin.register(FavoriteRecipe)
