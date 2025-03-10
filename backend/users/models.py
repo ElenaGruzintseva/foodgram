@@ -6,6 +6,7 @@ from foodgram.constants import MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, REGEX
 
 
 class User(AbstractUser):
+
     username = models.CharField(
         'Логин',
         max_length=MAX_USERNAME_LENGTH,
@@ -35,6 +36,7 @@ class User(AbstractUser):
 
 
 class Subscribe(models.Model):
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
