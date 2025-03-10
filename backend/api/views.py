@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.pagination import BasePagination
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .filters import IngredientFilter, RecipeFilter
@@ -36,7 +36,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
-    pagination_class = (BasePagination,)
+    pagination_class = (PageNumberPagination,)
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -46,7 +46,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
-    pagination_class = (BasePagination,)
+    pagination_class = (PageNumberPagination,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
