@@ -74,6 +74,8 @@ print("POSTGRES_USER:", os.getenv('POSTGRES_USER'))
 print("POSTGRES_PASSWORD:", os.getenv('POSTGRES_PASSWORD'))
 print("DB_HOST:", os.getenv('DB_HOST'))
 print("DB_PORT:", os.getenv('DB_PORT'))
+print("ALLOWED_HOSTS:", os.getenv('ALLOWED_HOSTS'))
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
