@@ -1,38 +1,38 @@
 version: '3'
 
 volumes:
-  static:
-  media:
-  pg_data:
+  foodgram_pg_data:
+  foodgram_static:
+  foodgram_media:
 
 services:
-  db:
+  foodgram_db:
     image: postgres:13.10
     env_file: .env
     volumes:
-      - pg_data:/var/lib/postgresql/data
-  backend:
-    image: elenagruzintseva/kittygram_backend
+      - foodgram_pg_data:/var/lib/postgresql/data
+  foodgram_backend:
+    image: elenagruzintseva/foodgram_backend
     env_file: .env
     volumes:
-      - static:/backend_static/
-      - media:/app/media/
+      - foodgram_static:/backend_static/
+      - foodgram_media:/app/media/
     depends_on:
-      - db
-  frontend:
-    image: elenagruzintseva/kittygram_frontend
+      - foodgram_db
+  foodgram_frontend:
+    image: elenagruzintseva/foodgram_frontend
     env_file: .env
     command: cp -r /app/build/. /static/
     volumes:
-      - static:/static/
-  gateway:
-    image: elenagruzintseva/kittygram_gateway
+      - foodgram_static:/static/
+  foodgram_gateway:
+    image: elenagruzintseva/foodgram_gateway
     env_file: .env
     volumes:
-      - static:/static/
-      - media:/media/
+      - foodgram_static:/static/
+      - foodgram_media:/media/
     ports:
-      - 9000:80
+      - 7000:80
     depends_on:
-      - backend
-      - frontend
+      - foodgram_backend
+      - foodgram_frontend
