@@ -10,9 +10,10 @@ done
 
 python manage.py makemigrations --no-input
 python manage.py migrate --no-input
-python manage.py load_data data/ingredients.csv -e
+python manage.py load_data data/ingredients.csv
 python manage.py create_superuser -u
 python manage.py collectstatic --no-input
-cp -r /app/collected_static/. /static/static/
+cp -r /app/static/. /app/static/
+cp -r /app/media/. /app/media/
 
 exec gunicorn foodgram.wsgi:application --bind 0.0.0.0:7000
