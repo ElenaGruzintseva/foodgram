@@ -1,3 +1,5 @@
+version: '3.8'
+
 volumes:
   pg_data:
   static:
@@ -9,6 +11,9 @@ services:
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
+    networks:
+      - foodgram_network
+
   backend:
     build: ../backend/
     env_file: .env
@@ -17,12 +22,18 @@ services:
       - media:/app/media
     depends_on:
       - db
+    networks:
+      - foodgram_network
+
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
+    networks:
+      - foodgram_network
+
   nginx:
     image: nginx:1.19.3
     ports:
@@ -33,3 +44,11 @@ services:
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/var/html/static/
       - media:/var/html/media/
+    depends_on:
+      - backend
+    networks:
+      - foodgram_network
+
+networks:
+  foodgram_network:
+    driver: bridge
