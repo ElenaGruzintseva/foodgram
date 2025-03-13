@@ -6,5 +6,5 @@ MAX_TAG_LENGTH = 32
 MIN_AMOUNT = 1
 MIN_COOKING_TIME = 1
 MAX_UNIT_LENGTH = 64
-REGEX = r'^[\w.@+-]+\z'
+REGEX = r'^[\w.@+-]+$'
 TAG_REGEX = r'^[-a-zA-Z0-9_]+$'
