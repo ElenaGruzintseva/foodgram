@@ -86,10 +86,15 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         verbose_name='Автор',
     )
+    pub_date = models.DateTimeField(
+        verbose_name="Дата публикации",
+        auto_now_add=True,
+        editable=False,
+    )
     objects = RecipeQuerySet.as_manager()
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
