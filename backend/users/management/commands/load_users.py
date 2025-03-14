@@ -20,6 +20,8 @@ class Command(BaseCommand):
                 for row in reader:
                     username = row['username']
                     email = row['email']
+                    first_name = row['first_name']
+                    last_name = row['last_name']
                     password = row['password']
                     is_staff = row['is_staff'].lower() == 'true'
                     is_superuser = row['is_superuser'].lower() == 'true'
@@ -28,6 +30,8 @@ class Command(BaseCommand):
                         User.objects.create_user(
                             username=username,
                             email=email,
+                            first_name=first_name,
+                            last_name=last_name,
                             password=password,
                             is_staff=is_staff,
                             is_superuser=is_superuser
