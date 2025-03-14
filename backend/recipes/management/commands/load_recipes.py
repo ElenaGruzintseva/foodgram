@@ -22,12 +22,6 @@ class Command(BaseCommand):
             existing_recipe = model.objects.filter(name=name).exists()
             if existing_recipe:
                 continue
-            # Проверяем существование пользователя
-            try:
-                author = User.objects.get(username=author_username)
-            except User.DoesNotExist:
-                self.stdout.write(self.style.ERROR(f'Пользователь {author_username} не найден.'))
-                continue
 
             recipe = model.objects.create(
                 name=name,
@@ -61,22 +55,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         csv_path = options['csv_path']
 
-        try:
-            with open(csv_path, encoding='utf8') as csvfile:
-                reader = csv.reader(csvfile)
-                next(reader)
-                rows = list(reader)
+        with open(csv_path, encoding='utf8') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            rows = list(reader)
 
-                rows_count = len(rows)
-                bulk_count = self.bulk_create_recipes(Recipe, rows)
+            rows_count = len(rows)
+            bulk_count = self.bulk_create_recipes(Recipe, rows)
 
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f'Импорт данных завершился успешно! '
-                    f'Всего {bulk_count} записей было добавлено из {rows_count}.'
-                )
+        self.stdout.write(
+            self.style.SUCCESS(
+                f'Импорт данных завершился успешно! '
+                f'Всего {bulk_count} записей было добавлено из {rows_count}.'
             )
-        except FileNotFoundError:
-            self.stdout.write(self.style.ERROR(f'Файл {csv_path} не найден.'))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Произошла ошибка: {e}'))
+        )
