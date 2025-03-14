@@ -324,7 +324,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         recipes_limit = request.query_params.get('recipes_limit', None)
 
         if recipes_limit is not None:
-            recipes = Recipe.objects.filter(author=obj)[:recipes_limit]
+            recipes = Recipe.objects.filter(author=obj)[: int(recipes_limit)]
         else:
             recipes = Recipe.objects.filter(author=obj)
 
