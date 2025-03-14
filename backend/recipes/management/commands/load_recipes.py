@@ -1,6 +1,9 @@
 import csv
 from django.core.management.base import BaseCommand
 from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class Command(BaseCommand):
@@ -12,10 +15,18 @@ class Command(BaseCommand):
     def bulk_create_recipes(self, model, rows):
         recipes = []
         for row in rows:
-            name, text, cooking_time, image, tag_ids, ingredients_data = row
+            name, text, cooking_time, image, tags, ingredients_data, author_username = row
+
+            author = User.objects.get(username=author_username)
 
             existing_recipe = model.objects.filter(name=name).exists()
             if existing_recipe:
+                continue
+            # Проверяем существование пользователя
+            try:
+                author = User.objects.get(username=author_username)
+            except User.DoesNotExist:
+                self.stdout.write(self.style.ERROR(f'Пользователь {author_username} не найден.'))
                 continue
 
             recipe = model.objects.create(
@@ -23,10 +34,11 @@ class Command(BaseCommand):
                 text=text,
                 cooking_time=int(cooking_time),
                 image=image,
+                author=author,
             )
 
-            tag_ids = [int(tag_id) for tag_id in tag_ids.split(',')]
-            tags = Tag.objects.filter(id__in=tag_ids)
+            tags = [int(tag_id) for tag_id in tags.split(',')]
+            tags = Tag.objects.filter(id__in=tags)
             recipe.tags.set(tags)
 
             ingredients = []
