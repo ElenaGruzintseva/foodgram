@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .filters import IngredientFilter, RecipeFilter
-from .pagination import CustomPagination
 from .permissions import OwnerOnlyPermission
 from .serializers import (
     FavoriteSerializer,
@@ -36,7 +35,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (AllowAny,)
-    pagination_class = CustomPagination
+    pagination_class = None
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -46,7 +45,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
-    pagination_class = CustomPagination
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
