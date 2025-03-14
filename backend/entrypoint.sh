@@ -11,6 +11,7 @@ done
 python manage.py makemigrations users --no-input
 python manage.py makemigrations recipes --no-input
 python manage.py migrate --no-input
+python manage.py load_tags data/tags.csv
 python manage.py load_data data/ingredients.csv
 python manage.py create_superuser -u
 python manage.py collectstatic --no-input
