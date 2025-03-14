@@ -61,19 +61,19 @@ def generate_shopping_list_pdf(recipes_in_shopping_list):
 
     p = canvas.Canvas(response)
 
-    pdfmetrics.registerFont(TTFont("Arial", "./recipes/fonts/arial.ttf"))
-    p.setFont("Arial", 15)
+    pdfmetrics.registerFont(TTFont('AV_Fontimer', './recipes/fonts/AV_Fontimer.ttf'))
+    p.setFont('AV_Fontimer', 15)
 
-    p.drawString(100, 800, "Список покупок:")
+    p.drawString(100, 800, 'Список покупок:')
 
     y_position = 780
 
     for recipe in recipes_in_shopping_list:
-        name = recipe["ingredient__name"]
-        total_amount = recipe["total_amount"]
-        measurement_unit = recipe["ingredient__measurement_unit"]
+        name = recipe['ingredient__name']
+        total_amount = recipe['total_amount']
+        measurement_unit = recipe['ingredient__measurement_unit']
 
-        item_text = f"{name} ({measurement_unit}) - {total_amount}"
+        item_text = f'{name} ({measurement_unit}) - {total_amount}'
         p.drawString(100, y_position, item_text)
 
         y_position -= 20
