@@ -61,7 +61,9 @@ def generate_shopping_list_pdf(recipes_in_shopping_list):
 
     p = canvas.Canvas(response)
 
-    pdfmetrics.registerFont(TTFont('AV_Fontimer', './recipes/fonts/AV_Fontimer.ttf'))
+    pdfmetrics.registerFont(TTFont(
+        'AV_Fontimer', './recipes/fonts/AV_Fontimer.ttf'
+        ))
     p.setFont('AV_Fontimer', 15)
 
     p.drawString(100, 800, 'Список покупок:')
