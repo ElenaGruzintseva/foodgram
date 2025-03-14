@@ -23,21 +23,16 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         csv_path = options['csv_path']
 
-        try:
-            with open(csv_path, encoding='utf8') as csvfile:
-                reader = csv.reader(csvfile)
-                rows = list(reader)
+        with open(csv_path, encoding='utf8') as csvfile:
+            reader = csv.reader(csvfile)
+            rows = list(reader)
 
-                rows_count = len(rows)
-                bulk_count = self.bulk_create_tags(Tag, rows)
+            rows_count = len(rows)
+            bulk_count = self.bulk_create_tags(Tag, rows)
 
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f'Импорт данных завершился успешно! '
-                    f'Всего {bulk_count} записей было добавлено из {rows_count}.'
-                )
+        self.stdout.write(
+            self.style.SUCCESS(
+                f'Импорт данных завершился успешно! '
+                f'Всего {bulk_count} записей было добавлено из {rows_count}.'
             )
-        except FileNotFoundError:
-            self.stdout.write(self.style.ERROR(f'Файл {csv_path} не найден.'))
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f'Произошла ошибка: {e}'))
+        )
