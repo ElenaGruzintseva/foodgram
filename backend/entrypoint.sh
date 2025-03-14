@@ -15,6 +15,7 @@ python manage.py create_superuser -u
 python manage.py load_users data/users.csv
 python manage.py load_tags data/tags.csv
 python manage.py load_data data/ingredients.csv
+cp -r /app/media/images* /app/media/recipes/
 python manage.py load_recipes data/recipes.csv
 python manage.py collectstatic --no-input
 
