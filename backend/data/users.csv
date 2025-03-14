@@ -1,5 +1,5 @@
 username,email,first_name,last_name,password,is_staff,is_superuser
 Vasilisa,vasilisa@example.com,Василиса,Прекрасная,vasilisapassword,False,False
-Maria,user1@example.com,Мария,Маревна,user1password,False,False
+Maria,user1@example.com,Мария,Моревна,user1password,False,False
 Alice,user2@example.com,Алиса,Чудесная,user2password,False,False
 Max,max@example.com,Макс,Максимус,maxpassword,False,False
