@@ -10,11 +10,13 @@ from users.views import (
     MeView,
     SubscribeView,
     SubscriptionsListView,
-    UserAvatar
+    UserAvatar,
+    UserViewSet
     )
 
 router = routers.DefaultRouter()
 
+router.register(r'users', UserViewSet, basename='users')
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')

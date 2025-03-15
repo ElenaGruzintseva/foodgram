@@ -1,10 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
 from api.permissions import OwnerOnlyPermission
 from api.serializers import (
@@ -23,6 +23,16 @@ class MeView(APIView):
     def get(self, request):
         serializer = UserGETSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserViewSet(ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserGETSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
 
 class UserAvatar(UpdateModelMixin, DestroyModelMixin, GenericViewSet):
