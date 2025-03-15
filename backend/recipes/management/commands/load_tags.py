@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f'Импорт данных завершился успешно! '
+                f'Импорт тэгов завершился успешно! '
                 f'Всего {bulk_count} записей было добавлено из {rows_count}.'
             )
         )

@@ -1,9 +1,14 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from django.urls import reverse
+from django.shortcuts import get_object_or_404
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.status import HTTP_200_OK
 
 from .filters import IngredientFilter, RecipeFilter
 from .permissions import OwnerOnlyPermission
@@ -66,9 +71,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'get-link'):
             return RecipeGETSerializer
         return RecipeCreateSerializer
+
+    @action(
+            detail=True,
+            permission_classes=(AllowAny,),
+            url_path="get-link"
+        )
+    def get_link(self, request, pk=None):
+        recipe = get_object_or_404(Recipe, pk=pk)
+
+        return Response({"short-link": request.build_absolute_uri(reverse(
+            "recipes:shortlink", args=[recipe.pk]))}, status=HTTP_200_OK,
+        )
 
     @action(
         detail=True,
