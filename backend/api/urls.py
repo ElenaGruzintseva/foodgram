@@ -12,7 +12,7 @@ from users.views import (
     SubscriptionsListView,
     UserAvatar,
     UserViewSet
-    )
+)
 
 router = routers.DefaultRouter()
 
