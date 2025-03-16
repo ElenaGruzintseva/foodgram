@@ -15,7 +15,7 @@ services:
     image: elenagruzintseva/foodgram_backend
     env_file: .env
     volumes:
-      - static:/backend/static/
+      - static:/backend_static/
       - media:/app/media/
     depends_on:
       - db
