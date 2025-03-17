@@ -1,7 +1,14 @@
 import csv
-from django.core.management.base import BaseCommand
-from recipes.models import Recipe, Tag, Ingredient, RecipeIngredient
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
+
+from recipes.models import (
+    Ingredient,
+    Recipe,
+    RecipeIngredient,
+    Tag
+)
+
 
 User = get_user_model()
 
@@ -15,7 +22,8 @@ class Command(BaseCommand):
     def bulk_create_recipes(self, model, rows):
         recipes = []
         for row in rows:
-            name, text, cooking_time, image, tags, ingredients_data, author_username = row
+            (name, text, cooking_time, image, tags,
+             ingredients_data, author_username) = row
 
             author = User.objects.get(username=author_username)
 

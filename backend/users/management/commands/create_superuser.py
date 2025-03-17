@@ -1,5 +1,4 @@
 import os
-
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from dotenv import load_dotenv
@@ -22,10 +21,12 @@ class Command(BaseCommand):
                 password=os.getenv('SUPERUSER_PASSWORD')
             )
             self.stdout.write(self.style.SUCCESS(
-                'Successfully created a new superuser'
+                'Суперпользователь успешно создан!'
             ))
         else:
-            self.stdout.write(self.style.WARNING('A superuser already exists'))
+            self.stdout.write(self.style.WARNING(
+                'Суперпользователь уже существует'
+            ))
 
     def add_arguments(self, parser):
         parser.add_argument(
