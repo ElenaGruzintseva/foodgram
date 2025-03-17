@@ -1,17 +1,15 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from django.urls import reverse
 from django.shortcuts import get_object_or_404
-
+from django.urls import reverse
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
 from .filters import IngredientFilter, RecipeFilter
-from .permissions import OwnerOnlyPermission
 from .serializers import (
     FavoriteSerializer,
     IngredientSerializer,
@@ -76,10 +74,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeCreateSerializer
 
     @action(
-            detail=True,
-            permission_classes=(AllowAny,),
-            url_path="get-link"
-        )
+        detail=True,
+        permission_classes=(AllowAny,),
+        url_path="get-link"
+    )
     def get_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, pk=pk)
 

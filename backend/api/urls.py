@@ -8,8 +8,8 @@ from .views import (
 )
 from users.views import (
     MeView,
-    SubscribeView,
     SubscriptionsListView,
+    SubscribeView,
     UserAvatar,
     UserViewSet
 )

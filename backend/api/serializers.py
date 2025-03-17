@@ -4,6 +4,7 @@ import djoser.serializers
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from .utils import create_update_ingredients
 from foodgram.constants import MIN_AMOUNT, MIN_COOKING_TIME
 from recipes.models import (
     FavoriteRecipe,
@@ -14,8 +15,6 @@ from recipes.models import (
     Tag
 )
 from users.models import Subscribe, User
-
-from .utils import create_update_ingredients
 
 
 class Base64ImageField(serializers.ImageField):

@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.mixins import DestroyModelMixin, UpdateModelMixin
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet
 
 from api.permissions import OwnerOnlyPermission

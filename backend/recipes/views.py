@@ -1,5 +1,6 @@
-from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
+from django.shortcuts import redirect
+
 from .models import Recipe
 
 

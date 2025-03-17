@@ -6,7 +6,11 @@ from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient
+from recipes.models import (
+    Ingredient,
+    Recipe,
+    RecipeIngredient
+)
 
 
 def create_update_ingredients(recipe, ingredients_data):

@@ -1,6 +1,5 @@
-from django.db import models
 from django.core.validators import RegexValidator
-from django.db.models import Exists, OuterRef
+from django.db import models
 
 from foodgram.constants import (
     MAX_CHAR_LENGTH,
@@ -8,7 +7,7 @@ from foodgram.constants import (
     MAX_TAG_LENGTH,
     MAX_UNIT_LENGTH,
     TAG_REGEX
-    )
+)
 from users.models import User
 
 
@@ -16,18 +15,18 @@ class RecipeQuerySet(models.QuerySet):
 
     def favorited(self, user_id):
         return self.annotate(
-            is_favorited=Exists(
+            is_favorited=models.Exists(
                 FavoriteRecipe.objects.filter(
-                    recipe=OuterRef('pk'), user=user_id
+                    recipe=models.OuterRef('pk'), user=user_id
                 )
             )
         )
 
     def in_shopping_cart(self, user_id):
         return self.annotate(
-            is_in_shopping_cart=Exists(
+            is_in_shopping_cart=models.Exists(
                 ShoppingList.objects.filter(
-                    recipe=OuterRef('pk'), user=user_id
+                    recipe=models.OuterRef('pk'), user=user_id
                 )
             )
         )
