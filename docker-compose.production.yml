@@ -15,8 +15,8 @@ services:
     image: elenagruzintseva/foodgram_backend
     env_file: .env
     volumes:
-      - static:/app/static/
-      - media:/app/media/
+      - static:/app/static
+      - media:/app/media
     depends_on:
       - db
   frontend:
@@ -24,13 +24,13 @@ services:
     env_file: .env
     command: cp -r /app/build/. /static/
     volumes:
-      - static:/static/
+      - static:/static
   gateway:
     image: elenagruzintseva/foodgram_gateway
     env_file: .env
     volumes:
-      - static:/static/
-      - media:/app/media/
+      - static:/static
+      - media:/app/media
     ports:
       - 7000:80
     depends_on:
