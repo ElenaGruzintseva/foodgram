@@ -19,4 +19,4 @@ cp -r /app/media/images* /app/media/recipes/
 python manage.py load_recipes data/recipes.csv
 python manage.py collectstatic --no-input
 
-# exec gunicorn -w 2 -b 0.0.0.0:7000 foodgram.wsgi:application --access-logfile - --error-logfile -
+exec gunicorn -w 2 -b 0.0.0.0:7000 foodgram.wsgi:application --access-logfile - --error-logfile -

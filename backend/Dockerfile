@@ -11,3 +11,9 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY . .
 
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "foodgram.wsgi"]
+# закомментируйте строку выше и раскомментируйте команды ниже,
+# чтобы использовать локально docker-compose.yml
+
+# chmod +x entrypoint.sh
+
+# CMD ["/bin/bash","-c","./entrypoint.sh"]
