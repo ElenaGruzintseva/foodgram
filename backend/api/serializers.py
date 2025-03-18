@@ -1,6 +1,6 @@
 import base64
 from django.core.files.base import ContentFile
-import djoser.serializers
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -83,7 +83,7 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
 
 
-class UserGETSerializer(djoser.serializers.DjoserUserSerializer):
+class UserGETSerializer(UserSerializer):
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
@@ -363,7 +363,7 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
         ).data
 
 
-class UserCreateSerializer(djoser.serializers.DjoserUserCreateSerializer):
+class UserCreateSerializer(UserCreateSerializer):
     class Meta:
         fields = (
             'id',
