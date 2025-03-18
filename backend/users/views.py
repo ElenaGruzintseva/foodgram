@@ -32,7 +32,7 @@ class UserViewSet(ReadOnlyModelViewSet):
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [AllowAny()]
-        return [IsAuthenticated()]
+        return super().get_permissions()
 
 
 class UserAvatar(UpdateModelMixin, DestroyModelMixin, GenericViewSet):
