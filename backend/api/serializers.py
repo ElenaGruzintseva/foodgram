@@ -83,7 +83,7 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
         model = RecipeIngredient
 
 
-class UserGETSerializer(djoser.serializers.UserSerializer):
+class UserGETSerializer(djoser.serializers.DjoserUserSerializer):
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
@@ -363,7 +363,7 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
         ).data
 
 
-class UserCreateSerializer(djoser.serializers.UserCreateSerializer):
+class UserCreateSerializer(djoser.serializers.DjoserUserCreateSerializer):
     class Meta:
         fields = (
             'id',
