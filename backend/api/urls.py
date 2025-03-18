@@ -22,8 +22,8 @@ router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 
 
 user_urls = [
-    path('', UserViewSet.as_view({'get': 'list'}), name='users-list'),
-    path('<int:pk>/', UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
+    # path('', UserViewSet.as_view({'get': 'list'}), name='users-list'),
+    # path('<int:pk>/', UserViewSet.as_view({'get': 'retrieve'}), name='user-detail'),
     path('me/', MeView.as_view(), name='user-me'),
     path(
         'subscriptions/',
