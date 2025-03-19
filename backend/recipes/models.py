@@ -112,12 +112,12 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
-    def clean(self):
-        super().clean()
-        if not hasattr(self, 'ingredients') or self.ingredients.count() == 0:
-            raise ValidationError(
-                'Рецепт должен содержать как минимум один ингредиент'
-            )
+    # def clean(self):
+    #     super().clean()
+    #     if not hasattr(self, 'ingredients') or self.ingredients.count() == 0:
+    #         raise ValidationError(
+    #             'Рецепт должен содержать как минимум один ингредиент'
+    #         )
 
 
 class RecipeIngredient(models.Model):
