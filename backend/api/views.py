@@ -83,7 +83,7 @@ class UserViewSet(DjoserUserViewSet):
         url_path='subscriptions',
     )
     def subscriptions(self, request):
-        subscriptions = User.objects.filter(authors__user=request.user)
+        subscriptions = User.objects.filter(following__user=request.user)
         page = self.paginate_queryset(subscriptions)
         if page is not None:
             serializer = SubscriptionSerializer(

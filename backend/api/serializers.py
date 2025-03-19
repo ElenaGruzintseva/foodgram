@@ -309,12 +309,6 @@ class AvatarUserSerializer(ModelSerializer):
         fields = ('avatar',)
 
 
-class ShortRecipeSerializer(ModelSerializer):
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-
 class SubscriptionSerializer(UserGETSerializer):
 
     recipes = SerializerMethodField()
@@ -331,7 +325,7 @@ class SubscriptionSerializer(UserGETSerializer):
         )
 
     def get_recipes(self, recipe):
-        return ShortRecipeSerializer(
+        return RecipeReadSerializer(
             recipe.recipes.all()[:int(
                 self.context.get('request').GET.get('recipes_limit', 10**10)
             )], many=True, context=self.context
