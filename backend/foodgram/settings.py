@@ -13,6 +13,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 't')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
+DATA_DIR = os.getenv('DATA_DIR', default='/app/data')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

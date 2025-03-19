@@ -1,6 +1,8 @@
 import csv
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
+from pathlib import Path
 
 
 User = get_user_model()
@@ -9,11 +11,8 @@ User = get_user_model()
 class Command(BaseCommand):
     help = 'Загрузка пользователей из CSV-файла'
 
-    def add_arguments(self, parser):
-        parser.add_argument('csv_path', type=str, help='Путь к CSV-файлу')
-
     def handle(self, *args, **options):
-        csv_path = options['csv_path']
+        csv_path = Path(settings.DATA_DIR) / 'users.csv'
 
         with open(csv_path, encoding='utf8') as csvfile:
             reader = csv.DictReader(csvfile)

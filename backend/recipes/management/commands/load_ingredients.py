@@ -1,5 +1,7 @@
 import csv
+from django.conf import settings
 from django.core.management.base import BaseCommand
+from pathlib import Path
 
 from recipes.models import Ingredient
 
@@ -7,9 +9,6 @@ from recipes.models import Ingredient
 class Command(BaseCommand):
 
     help = 'Загрузка данных из CSV-файлов'
-
-    def add_arguments(self, parser):
-        parser.add_argument('csv_path', type=str, help='Путь к CSV-файлу')
 
     def bulk_create_ingredients(self, model, rows):
         ingredients = []
@@ -25,7 +24,7 @@ class Command(BaseCommand):
         return len(ingredients)
 
     def handle(self, *args, **options):
-        csv_path = options['csv_path']
+        csv_path = Path(settings.DATA_DIR) / 'ingredients.csv'
 
         with open(csv_path, encoding='utf8') as csvfile:
             reader = csv.reader(csvfile)
