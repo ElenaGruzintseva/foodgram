@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 
 from foodgram.constants import MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, REGEX
+from recipes.validators import validate_username
 
 
 class User(AbstractUser):
@@ -12,7 +13,8 @@ class User(AbstractUser):
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
         validators=[
-            RegexValidator(regex=REGEX, message='Недопустимый символ')
+            RegexValidator(regex=REGEX, message='Недопустимый символ'),
+            validate_username
         ],
     )
     first_name = models.CharField('Имя', max_length=MAX_USERNAME_LENGTH)

@@ -127,3 +127,5 @@ DJOSER = {
         'current_user': 'api.serializers.UserGETSerializer',
     }
 }
+
+USER_PROFILE_URL = 'me'

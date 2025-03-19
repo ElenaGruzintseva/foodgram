@@ -1,11 +1,14 @@
-from django.core.validators import RegexValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+
 
 from foodgram.constants import (
     MAX_CHAR_LENGTH,
     MAX_RECIPE_LENGTH,
     MAX_TAG_LENGTH,
     MAX_UNIT_LENGTH,
+    MIN_AMOUNT,
+    MIN_COOKING_TIME,
     TAG_REGEX
 )
 from users.models import User
@@ -78,7 +81,12 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(Tag, verbose_name='Тэг')
     text = models.TextField('Описание')
     image = models.ImageField('Фотография', upload_to='recipes/images/')
-    cooking_time = models.IntegerField('Время приготовления')
+    cooking_time = models.IntegerField(
+        'Время приготовления',
+        validators=[
+            MinValueValidator(MIN_COOKING_TIME)
+        ]
+    )
     author = models.ForeignKey(
         User,
         related_name='recipes',
@@ -115,7 +123,12 @@ class RecipeIngredient(models.Model):
         related_name='ingredients',
         verbose_name='Ингредиент',
     )
-    amount = models.IntegerField('Количество')
+    amount = models.IntegerField(
+        'Количество',
+        validators=[
+            MinValueValidator(MIN_AMOUNT)
+        ]
+    )
 
     class Meta:
         verbose_name = 'Ингредиент для рецепта'
