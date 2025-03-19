@@ -3,19 +3,30 @@ from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from rest_framework import viewsets
+from djoser.views import UserViewSet as DjoserUserViewSet
+from djoser.serializers import SetPasswordSerializer
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT
+)
 
 from .filters import IngredientFilter, RecipeFilter
 from .serializers import (
+    AvatarUserSerializer,
     FavoriteSerializer,
     IngredientSerializer,
     RecipeCreateSerializer,
     RecipeGETSerializer,
     ShoppingListSerializer,
+    SubscriptionSerializer,
+    UserGETSerializer,
+    UserPOSTSerializer,
     TagSerializer,
 )
 from .utils import (
@@ -31,9 +42,88 @@ from recipes.models import (
     ShoppingList,
     Tag
 )
+from users.models import Subscribe, User
 
 
-class TagViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(DjoserUserViewSet):
+
+    def get_serializer_class(self):
+        if self.action == 'set_password':
+            return SetPasswordSerializer
+        if self.request.method == 'GET':
+            return UserGETSerializer
+        return UserPOSTSerializer
+
+    def get_permissions(self):
+        if self.action == 'me':
+            return [IsAuthenticated()]
+        if self.action in ('list', 'retrieve'):
+            return [AllowAny()]
+        return super().get_permissions()
+
+    @action(
+        detail=False,
+        methods=['put', 'delete'],
+        permission_classes=[IsAuthenticated],
+        url_path='me/avatar',
+    )
+    def avatar(self, request):
+        if request.method == 'PUT':
+            serializer = AvatarUserSerializer(request.user, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        request.user.avatar = None
+        request.user.save()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        url_path='subscriptions',
+    )
+    def subscriptions(self, request):
+        subscriptions = User.objects.filter(authors__user=request.user)
+        page = self.paginate_queryset(subscriptions)
+        if page is not None:
+            serializer = SubscriptionSerializer(
+                page, many=True, context={'request': request}
+            )
+            return self.get_paginated_response(serializer.data)
+
+        serializer = SubscriptionSerializer(
+            subscriptions, many=True, context={'request': request}
+        )
+        return Response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        url_path='subscribe',
+        permission_classes=[IsAuthenticated],
+    )
+    def subscribe(self, request, id=None):
+        author = get_object_or_404(User, pk=id)
+        user = request.user
+        if user == author:
+            raise ValidationError('Нельзя подписаться на самого себя.')
+        if request.method == 'POST':
+            _, created = Subscribe.objects.get_or_create(
+                user=user, author=author
+            )
+            if not created:
+                raise ValidationError('Вы уже подписаны на этого пользователя')
+            return Response(
+                SubscriptionSerializer(
+                    author, context={'request': request}
+                ).data,
+                status=HTTP_201_CREATED,
+            )
+        get_object_or_404(Subscribe, user=user, author=author).delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+
+class TagViewSet(ReadOnlyModelViewSet):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -41,7 +131,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+class IngredientViewSet(ReadOnlyModelViewSet):
 
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
@@ -51,7 +141,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeViewSet(ModelViewSet):
 
     permission_classes = (AllowAny,)
     filter_backends = (DjangoFilterBackend,)
