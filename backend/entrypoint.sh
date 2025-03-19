@@ -8,8 +8,6 @@ done
 
 >&2 echo "PostgreSQL is up - continuing"
 
-python manage.py makemigrations users --no-input
-python manage.py makemigrations recipes --no-input
 python manage.py migrate --no-input
 python manage.py create_superuser -u
 python manage.py load_users
