@@ -324,9 +324,16 @@ class SubscriptionSerializer(UserGETSerializer):
             'recipes_count',
         )
 
-    def get_recipes(self, recipe):
-        return RecipeReadSerializer(
-            recipe.recipes.all()[:int(
-                self.context.get('request').GET.get('recipes_limit', 10**10)
-            )], many=True, context=self.context
-        ).data
+    def get_recipes(self, obj):
+        request = self.context.get("request")
+        recipes_limit = request.query_params.get("recipes_limit", None)
+
+        if recipes_limit is not None:
+            recipes = Recipe.objects.filter(author=obj)[: int(recipes_limit)]
+        else:
+            recipes = Recipe.objects.filter(author=obj)
+
+        serializer = RecipeReadSerializer(
+            recipes, many=True, context=self.context
+        )
+        return serializer.data
