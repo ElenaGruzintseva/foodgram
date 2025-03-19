@@ -105,10 +105,10 @@ jobs:
           sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/docs/. /static/
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py create_superuser -u
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_users data/users.csv
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags data/tags.csv
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_data data/ingredients.csv
-          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_recipes data/recipes.csv
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_users
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_recipes
 
   send_message:
     runs-on: ubuntu-latest
