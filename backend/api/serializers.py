@@ -363,7 +363,7 @@ class SubscriptionCreateSerializer(serializers.ModelSerializer):
         ).data
 
 
-class UserCreateSerializer(UserCreateSerializer):
+class CreateUserSerializer(UserCreateSerializer):
     class Meta:
         fields = (
             'id',

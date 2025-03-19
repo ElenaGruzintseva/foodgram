@@ -13,7 +13,7 @@ from api.serializers import (
     SubscriptionCreateSerializer,
     SubscriptionSerializer,
     UserGETSerializer,
-    UserCreateSerializer
+    CreateUserSerializer
 )
 from .models import Subscribe, User
 
@@ -25,7 +25,7 @@ class UserViewSet(DjoserUserViewSet):
             return SetPasswordSerializer
         if self.request.method == 'GET':
             return UserGETSerializer
-        return UserCreateSerializer
+        return CreateUserSerializer
 
     def get_permissions(self):
         if self.action == 'me':

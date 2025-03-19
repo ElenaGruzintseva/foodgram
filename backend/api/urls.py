@@ -6,14 +6,14 @@ from .views import (
     RecipeViewSet,
     TagViewSet,
 )
-from users.views import (UserViewSet)
+from users.views import UserViewSet
 
 router = routers.DefaultRouter()
 
-router.register(r'users', UserViewSet, basename='users')
-router.register(r'tags', TagViewSet, basename='tags')
-router.register(r'recipes', RecipeViewSet, basename='recipes')
-router.register(r'ingredients', IngredientViewSet, basename='ingredients')
+router.register('users', UserViewSet, basename='users')
+router.register('tags', TagViewSet, basename='tags')
+router.register('recipes', RecipeViewSet, basename='recipes')
+router.register('ingredients', IngredientViewSet, basename='ingredients')
 
 
 urlpatterns = [
