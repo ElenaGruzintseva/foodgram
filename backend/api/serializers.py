@@ -325,7 +325,7 @@ class SubscriptionSerializer(UserGETSerializer):
         )
 
     def get_recipes(self, recipe):
-        return RecipeGETSerializer(
+        return RecipeReadSerializer(
             recipe.recipes.all()[:int(
                 self.context.get('request').GET.get('recipes_limit', 10**10)
             )], many=True, context=self.context
