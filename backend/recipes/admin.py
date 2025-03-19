@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.core.exceptions import ValidationError
+
 
 from .models import (
     FavoriteRecipe,
@@ -29,6 +31,13 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorited_by.count()
 
     favorites_count.short_description = 'Число добавлений в избранное'
+
+    def save_model(self, request, obj, form, change):
+        if not change and not obj.ingredients.exists():
+            raise ValidationError(
+                'Рецепт должен содержать как минимум один ингредиент'
+            )
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(Ingredient)
