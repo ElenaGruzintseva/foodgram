@@ -1,4 +1,8 @@
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import (
+    MinValueValidator,
+    RegexValidator,
+    ValidationError
+)
 from django.db import models
 
 
@@ -107,6 +111,13 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        if not hasattr(self, 'ingredients') or self.ingredients.count() == 0:
+            raise ValidationError(
+                'Рецепт должен содержать как минимум один ингредиент'
+            )
 
 
 class RecipeIngredient(models.Model):
