@@ -1,5 +1,7 @@
 ![Workflow Status](https://github.com/ElenaGruzintseva/foodgram/actions/workflows/main.yml/badge.svg)
 
+Проект доступен по адресу: https://foodgram21.ddnsking.com
+
 # Foodgram
 
 Foodgram - кулинарная веб-площадка с обширной базой ингредиентов, где зарегистрированный пользователь может:
