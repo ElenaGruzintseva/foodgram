@@ -189,15 +189,15 @@ class RecipeIngredient(Model):
         ordering = ('recipe',)
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
-        # constraints = (
-        #     UniqueConstraint(
-        #         fields=(
-        #             'recipe',
-        #             'ingredient',
-        #         ),
-        #         name='\n%(app_label)s_%(class)s ingredient alredy added\n',
-        #     ),
-        # )
+        constraints = (
+            UniqueConstraint(
+                fields=(
+                    'recipe',
+                    'ingredient',
+                ),
+                name='\n%(app_label)s_%(class)s ingredient alredy added\n',
+            ),
+        )
 
     def __str__(self):
         return f'{self.amount} {self.ingredient}'
@@ -224,7 +224,8 @@ class FavoriteRecipe(Model):
         verbose_name_plural = 'Избранные'
         constraints = [
             UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_user_favorite_recipe'
+                fields=['user', 'recipe'],
+                name='unique_user_favorite_recipe',
             )
         ]
 
@@ -253,7 +254,8 @@ class ShoppingList(Model):
         verbose_name_plural = 'Списки покупок'
         constraints = [
             UniqueConstraint(
-                fields=['user', 'recipe'], name='unique_user_shopping_list'
+                fields=['user', 'recipe'],
+                name='unique_user_shopping_list',
             )
         ]
 
