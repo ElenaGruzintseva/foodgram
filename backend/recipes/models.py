@@ -1,10 +1,9 @@
 from django.core.validators import (
     MinValueValidator,
     RegexValidator,
-    ValidationError
 )
 from django.db import models
-
+from django.db.models import Q
 
 from foodgram.constants import (
     MAX_CHAR_LENGTH,
@@ -50,9 +49,28 @@ class Ingredient(models.Model):
         ordering = ('id',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='unique_for_ingredient',
+            ),
+            models.CheckConstraint(
+                check=Q(name__length__gt=0),
+                name='\n%(app_label)s_%(class)s_name is empty\n',
+            ),
+            models.CheckConstraint(
+                check=Q(measurement_unit__length__gt=0),
+                name='\n%(app_label)s_%(class)s_measurement_unit is empty\n',
+            ),
+        )
 
     def __str__(self):
-        return self.name
+        return f'{self.name} {self.measurement_unit}'
+
+    def clean(self):
+        self.name = self.name.lower()
+        self.measurement_unit = self.measurement_unit.lower()
+        super().clean()
 
 
 class Tag(models.Model):
@@ -98,7 +116,7 @@ class Recipe(models.Model):
         verbose_name='Автор',
     )
     pub_date = models.DateTimeField(
-        verbose_name="Дата публикации",
+        verbose_name='Дата публикации',
         auto_now_add=True,
         editable=False,
     )
@@ -108,9 +126,23 @@ class Recipe(models.Model):
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'author'),
+                name='unique_for_author',
+            ),
+            models.CheckConstraint(
+                check=Q(name__length__gt=0),
+                name='\n%(app_label)s_%(class)s_name is empty\n',
+            ),
+        )
 
     def __str__(self):
-        return self.name
+        return f'{self.name}. Автор: {self.author.username}'
+
+    def clean(self):
+        self.name = self.name.capitalize()
+        return super().clean()
 
 
 class RecipeIngredient(models.Model):
@@ -135,11 +167,21 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
+        ordering = ('recipe',)
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
+        constraints = (
+            models.UniqueConstraint(
+                fields=(
+                    'recipe',
+                    'ingredients',
+                ),
+                name='\n%(app_label)s_%(class)s ingredient alredy added\n',
+            ),
+        )
 
     def __str__(self):
-        return self.recipe.name
+        return f'{self.amount} {self.ingredients}'
 
 
 class FavoriteRecipe(models.Model):
