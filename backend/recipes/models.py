@@ -1,12 +1,10 @@
 from django.core.validators import (
     MinValueValidator,
     RegexValidator,
-    ValidationError
 )
 from django.db.models import (
     CASCADE,
     CharField,
-    CheckConstraint,
     DateTimeField,
     Exists,
     ForeignKey,
@@ -69,20 +67,12 @@ class Ingredient(Model):
         ordering = ('id',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = (
+        constraints = [
             UniqueConstraint(
-                fields=('name', 'measurement_unit'),
+                fields=('name', 'measurement_unit',),
                 name='unique_for_ingredient',
-            ),
-            CheckConstraint(
-                check=Q(name__length__gt=0),
-                name='\n%(app_label)s_%(class)s_name is empty\n',
-            ),
-            CheckConstraint(
-                check=Q(measurement_unit__length__gt=0),
-                name='\n%(app_label)s_%(class)s_measurement_unit is empty\n',
-            ),
-        )
+            )
+        ]
 
     def __str__(self):
         return f'{self.name} {self.measurement_unit}'
@@ -117,9 +107,7 @@ class Tag(Model):
 class Recipe(Model):
 
     name = CharField('Название рецепта', max_length=MAX_RECIPE_LENGTH)
-    ingredients = ManyToManyField(
-        Ingredient, through='RecipeIngredient'
-    )
+    ingredients = ManyToManyField(Ingredient, through='RecipeIngredient')
     tags = ManyToManyField(Tag, verbose_name='Тэг')
     text = TextField('Описание')
     image = ImageField('Фотография', upload_to='recipes/images/')
@@ -146,30 +134,17 @@ class Recipe(Model):
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        constraints = (
+        constraints = [
             UniqueConstraint(
                 fields=('name', 'author'),
                 name='unique_for_author',
-            ),
-            CheckConstraint(
-                check=Q(name__length__gt=0),
-                name='\n%(app_label)s_%(class)s_name is empty\n',
-            ),
-        )
+            )
+        ]
 
     def __str__(self):
         return f'{self.name}. Автор: {self.author.username}'
 
     def clean(self):
-        super().clean()
-
-        if self.pk:
-            if not self.ingredients.exists():
-                raise ValidationError(
-                    {'ingredients': 'Рецепт должен содержать хотя бы один ингредиент.'}
-                )
-        else:
-            pass
         self.name = self.name.capitalize()
         return super().clean()
 
@@ -199,15 +174,12 @@ class RecipeIngredient(Model):
         ordering = ('recipe',)
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
-        constraints = (
+        constraints = [
             UniqueConstraint(
-                fields=(
-                    'recipe',
-                    'ingredient',
-                ),
-                name='\n%(app_label)s_%(class)s ingredient alredy added\n',
-            ),
-        )
+                fields=('recipe', 'ingredient',),
+                name='unique_ingredient_in_recipe',
+            )
+        ]
 
     def __str__(self):
         return f'{self.amount} {self.ingredient}'
@@ -234,7 +206,7 @@ class FavoriteRecipe(Model):
         verbose_name_plural = 'Избранные'
         constraints = [
             UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe',),
                 name='unique_user_favorite_recipe',
             )
         ]
@@ -264,7 +236,7 @@ class ShoppingList(Model):
         verbose_name_plural = 'Списки покупок'
         constraints = [
             UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe',),
                 name='unique_user_shopping_list',
             )
         ]

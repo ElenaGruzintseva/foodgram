@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 
 from .forms import RecipeForm
 from .models import (
@@ -25,16 +24,9 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientInline,)
     list_display = ('name', 'author', 'favorites_count')
     fields = (
-        (
-            'name',
-            'cooking_time',
-        ),
-        (
-            'author',
-            'tags',
-        ),
+        ('name', 'cooking_time',),
+        ('author', 'tags',),
         ('text',),
-        ('image',),
     )
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
@@ -44,13 +36,6 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorited_by.count()
 
     favorites_count.short_description = 'Число добавлений в избранное'
-
-    @admin.display(description='Изображение')
-    @mark_safe
-    def display_image(self, recipe):
-        return '<img src="{}" style="max-height: 100px;">'.format(
-            recipe.image.url
-        )
 
 
 @admin.register(Ingredient)

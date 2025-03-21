@@ -18,9 +18,9 @@ class RecipeForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
         ingredients = cleaned_data.get('ingredients')
         if not ingredients:
-            raise ValidationError('Рецепт должен содержать хотя бы один ингредиент.')
-
+            raise ValidationError(
+                'Рецепт должен содержать хотя бы один ингредиент.'
+            )
         return cleaned_data

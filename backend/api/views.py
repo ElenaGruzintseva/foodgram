@@ -166,13 +166,13 @@ class RecipeViewSet(ModelViewSet):
     @action(
         detail=True,
         permission_classes=(AllowAny,),
-        url_path="get-link"
+        url_path='get-link'
     )
     def get_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, pk=pk)
 
-        return Response({"short-link": request.build_absolute_uri(reverse(
-            "recipes:shortlink", args=[recipe.pk]))}, status=HTTP_200_OK,
+        return Response({'short-link': request.build_absolute_uri(reverse(
+            'recipes:shortlink', args=[recipe.pk]))}, status=HTTP_200_OK,
         )
 
     @action(
