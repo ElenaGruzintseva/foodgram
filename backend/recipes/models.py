@@ -174,14 +174,14 @@ class RecipeIngredient(models.Model):
             models.UniqueConstraint(
                 fields=(
                     'recipe',
-                    'ingredients',
+                    'ingredient',
                 ),
                 name='\n%(app_label)s_%(class)s ingredient alredy added\n',
             ),
         )
 
     def __str__(self):
-        return f'{self.amount} {self.ingredients}'
+        return f'{self.amount} {self.ingredient}'
 
 
 class FavoriteRecipe(models.Model):
