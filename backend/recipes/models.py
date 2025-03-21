@@ -1,6 +1,7 @@
 from django.core.validators import (
     MinValueValidator,
     RegexValidator,
+    ValidationError
 )
 from django.db.models import (
     CASCADE,
@@ -154,16 +155,21 @@ class Recipe(Model):
                 check=Q(name__length__gt=0),
                 name='\n%(app_label)s_%(class)s_name is empty\n',
             ),
-            CheckConstraint(
-                check=Q(ingredients__length__gt=0),
-                name='\n%(app_label)s_%(class)s_ingredients is empty\n',
-            ),
         )
 
     def __str__(self):
         return f'{self.name}. Автор: {self.author.username}'
 
     def clean(self):
+        super().clean()
+
+        if self.pk:
+            if not self.ingredients.exists():
+                raise ValidationError(
+                    {'ingredients': 'Рецепт должен содержать хотя бы один ингредиент.'}
+                )
+        else:
+            pass
         self.name = self.name.capitalize()
         return super().clean()
 
