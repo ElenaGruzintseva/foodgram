@@ -154,6 +154,10 @@ class Recipe(Model):
                 check=Q(name__length__gt=0),
                 name='\n%(app_label)s_%(class)s_name is empty\n',
             ),
+            CheckConstraint(
+                check=Q(ingredients__length__gt=0),
+                name='\n%(app_label)s_%(class)s_ingredients is empty\n',
+            ),
         )
 
     def __str__(self):

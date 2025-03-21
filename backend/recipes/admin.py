@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from .models import (
     FavoriteRecipe,
@@ -14,11 +15,6 @@ class RecipeIngredientInline(admin.TabularInline):
 
     model = RecipeIngredient
     extra = 2
-
-
-@admin.register(RecipeIngredient)
-class LinksAdmin(admin.ModelAdmin):
-    pass
 
 
 @admin.register(Recipe)
@@ -38,7 +34,6 @@ class RecipeAdmin(admin.ModelAdmin):
         ('text',),
         ('image',),
     )
-    raw_id_fields = ('author',)
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
     search_fields = ('name', 'author__username', 'tags__name')
@@ -47,6 +42,11 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorited_by.count()
 
     favorites_count.short_description = 'Число добавлений в избранное'
+
+    def get_image(self, obj):
+        return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
+
+    get_image.short_description = "Изображение"
 
 
 @admin.register(Ingredient)
