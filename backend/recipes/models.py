@@ -13,13 +13,11 @@ from django.db.models import (
     Model,
     OuterRef,
     PositiveSmallIntegerField,
-    Q,
     QuerySet,
     SlugField,
     TextField,
     UniqueConstraint,
 )
-from django.db.models.functions import Length
 
 from foodgram.constants import (
     MAX_CHAR_LENGTH,
@@ -31,8 +29,6 @@ from foodgram.constants import (
     TAG_REGEX
 )
 from users.models import User
-
-CharField.register_lookup(Length)
 
 
 class RecipeQuerySet(QuerySet):
