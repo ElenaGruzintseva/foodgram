@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
+from .forms import RecipeForm
 from .models import (
     FavoriteRecipe,
     Ingredient,
@@ -14,12 +15,13 @@ from .models import (
 class RecipeIngredientInline(admin.TabularInline):
 
     model = RecipeIngredient
-    extra = 2
+    extra = 1
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
 
+    form = RecipeForm
     inlines = (RecipeIngredientInline,)
     list_display = ('name', 'author', 'favorites_count')
     fields = (
@@ -43,10 +45,12 @@ class RecipeAdmin(admin.ModelAdmin):
 
     favorites_count.short_description = 'Число добавлений в избранное'
 
-    def get_image(self, obj):
-        return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
-
-    get_image.short_description = "Изображение"
+    @admin.display(description='Изображение')
+    @mark_safe
+    def display_image(self, recipe):
+        return '<img src="{}" style="max-height: 100px;">'.format(
+            recipe.image.url
+        )
 
 
 @admin.register(Ingredient)
