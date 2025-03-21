@@ -13,7 +13,12 @@ from .models import (
 class RecipeIngredientInline(admin.TabularInline):
 
     model = RecipeIngredient
-    extra = 0
+    extra = 2
+
+
+@admin.register(RecipeIngredient)
+class LinksAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Recipe)
@@ -21,9 +26,22 @@ class RecipeAdmin(admin.ModelAdmin):
 
     inlines = (RecipeIngredientInline,)
     list_display = ('name', 'author', 'favorites_count')
+    fields = (
+        (
+            'name',
+            'cooking_time',
+        ),
+        (
+            'author',
+            'tags',
+        ),
+        ('text',),
+        ('image',),
+    )
+    raw_id_fields = ('author',)
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
-    search_fields = ('name', 'author')
+    search_fields = ('name', 'author__username', 'tags__name')
 
     def favorites_count(self, obj):
         return obj.favorited_by.count()
