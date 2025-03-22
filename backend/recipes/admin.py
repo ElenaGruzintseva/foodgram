@@ -29,7 +29,6 @@ class RecipeIngredientInline(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
 
-    form = RecipeForm
     inlines = (RecipeIngredientInline,)
     list_display = ('name', 'author', 'favorites_count')
     fields = (
@@ -42,11 +41,13 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author__username', 'tags__name')
 
     def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
         if not obj.ingredients.exists():
+            obj.delete()
             raise ValidationError(
                 'Рецепт должен содержать хотя бы один ингредиент.'
             )
-        super().save_model(request, obj, form, change)
 
     def favorites_count(self, obj):
         return obj.favorited_by.count()
