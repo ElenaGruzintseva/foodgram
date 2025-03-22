@@ -16,11 +16,15 @@ class RecipeForm(forms.ModelForm):
             'cooking_time',
         )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        ingredients = cleaned_data.get('ingredients')
+    def save(self, commit=True):
+        ingredients = self.cleaned_data.get('ingredients')
         if not ingredients:
             raise ValidationError(
                 'Рецепт должен содержать хотя бы один ингредиент.'
             )
-        return cleaned_data
+
+        instance = super().save(commit=False)
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance

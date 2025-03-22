@@ -1,4 +1,5 @@
 from django.contrib import admin
+from rest_framework.exceptions import ValidationError
 
 from .forms import RecipeForm
 from .models import (
@@ -16,6 +17,14 @@ class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
     extra = 1
 
+    def clean(self):
+        super().clean()
+
+        if not self.cleaned_data:
+            raise ValidationError(
+                'Рецепт должен содержать хотя бы один ингредиент.'
+            )
+
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
@@ -26,11 +35,18 @@ class RecipeAdmin(admin.ModelAdmin):
     fields = (
         ('name', 'cooking_time',),
         ('author', 'tags',),
-        ('text',),
+        ('text', 'image',),
     )
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
     search_fields = ('name', 'author__username', 'tags__name')
+
+    def save_model(self, request, obj, form, change):
+        if not obj.ingredients.exists():
+            raise ValidationError(
+                'Рецепт должен содержать хотя бы один ингредиент.'
+            )
+        super().save_model(request, obj, form, change)
 
     def favorites_count(self, obj):
         return obj.favorited_by.count()
