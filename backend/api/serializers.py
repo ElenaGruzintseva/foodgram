@@ -133,7 +133,7 @@ class UserGETSerializer(UserSerializer):
 
         if request and not request.user.is_anonymous:
             user = request.user
-            return user.followers.filter(author=obj).exists()
+            return user.subscriptions.filter(author=obj).exists()
         return False
 
 

@@ -69,7 +69,7 @@ class Ingredient(Model):
             UniqueConstraint(
                 fields=('name', 'measurement_unit',),
                 name='unique_for_ingredient',
-            )
+            ),
         )
 
     def __str__(self):
@@ -104,10 +104,10 @@ class Recipe(Model):
     image = ImageField('Фотография', upload_to='recipes/images/')
     cooking_time = PositiveSmallIntegerField(
         'Время приготовления',
-        validators=[
+        validators=(
             MinValueValidator(MIN_COOKING_TIME),
             MaxValueValidator(MAX_COOKING_TIME)
-        ]
+        )
     )
     author = ForeignKey(
         User,
@@ -157,10 +157,10 @@ class RecipeIngredient(Model):
     )
     amount = PositiveSmallIntegerField(
         'Количество',
-        validators=[
+        validators=(
             MinValueValidator(MIN_AMOUNT),
             MaxValueValidator(MAX_AMOUNT)
-        ]
+        )
     )
 
     class Meta:
@@ -178,61 +178,49 @@ class RecipeIngredient(Model):
         return f'{self.amount} {self.ingredient}'
 
 
-class FavoriteRecipe(Model):
-
+class AbstractShoppingFavoriteRecipe(Model):
     user = ForeignKey(
         User,
-        related_name='favorite_recipes',
         on_delete=CASCADE,
         verbose_name='Пользователь',
     )
     recipe = ForeignKey(
         Recipe,
-        related_name='favorited_by',
         on_delete=CASCADE,
         verbose_name='Рецепт',
     )
 
     class Meta:
-        ordering = ('user',)
+        abstract = True
+        ordering = ('-id',)
+
+    def __str__(self):
+        return f'{self.recipe.name} ({self._meta.verbose_name})'
+
+
+class FavoriteRecipe(AbstractShoppingFavoriteRecipe):
+
+    class Meta(AbstractShoppingFavoriteRecipe.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
+        default_related_name = 'favorites'
         constraints = (
             UniqueConstraint(
-                fields=('user', 'recipe',),
+                fields=('user', 'recipe'),
                 name='unique_user_favorite_recipe',
             ),
         )
 
-    def __str__(self):
-        return self.recipe.name
 
+class ShoppingList(AbstractShoppingFavoriteRecipe):
 
-class ShoppingList(Model):
-
-    user = ForeignKey(
-        User,
-        related_name='shopping_lists',
-        on_delete=CASCADE,
-        verbose_name='Пользователь',
-    )
-    recipe = ForeignKey(
-        Recipe,
-        related_name='in_shopping_lists',
-        on_delete=CASCADE,
-        verbose_name='Рецепт',
-    )
-
-    class Meta:
-        ordering = ('user',)
+    class Meta(AbstractShoppingFavoriteRecipe.Meta):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
+        default_related_name = 'shopping_lists'
         constraints = (
             UniqueConstraint(
-                fields=('user', 'recipe',),
+                fields=('user', 'recipe'),
                 name='unique_user_shopping_list',
             ),
         )
-
-    def __str__(self):
-        return self.recipe.name
