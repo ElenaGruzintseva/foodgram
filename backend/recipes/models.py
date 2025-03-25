@@ -28,7 +28,6 @@ from foodgram.constants import (
     MAX_AMOUNT,
     MIN_AMOUNT,
     MIN_COOKING_TIME,
-
 )
 from users.models import User
 

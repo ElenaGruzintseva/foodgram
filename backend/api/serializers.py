@@ -133,7 +133,7 @@ class UserGETSerializer(UserSerializer):
 
         if request and not request.user.is_anonymous:
             user = request.user
-            return user.subscriptions.filter(author=obj).exists()
+            return user.subscriptions_from.filter(author=obj).exists()
         return False
 
 
@@ -267,7 +267,7 @@ class FavoriteSerializer(ModelSerializer):
     def validate(self, obj):
         user = obj['user']
 
-        if user.favorite_recipes.filter(recipe=obj['recipe']).exists():
+        if user.favorites_recipes.filter(recipe=obj['recipe']).exists():
             raise ValidationError(
                 'Рецепт уже добавлен в избранное.'
             )
