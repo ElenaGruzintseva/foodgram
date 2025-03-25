@@ -1,6 +1,6 @@
 from django.core.validators import (
+    MaxValueValidator,
     MinValueValidator,
-    RegexValidator,
 )
 from django.db.models import (
     CASCADE,
@@ -21,12 +21,14 @@ from django.db.models import (
 
 from foodgram.constants import (
     MAX_CHAR_LENGTH,
+    MAX_COOKING_TIME,
     MAX_RECIPE_LENGTH,
     MAX_TAG_LENGTH,
     MAX_UNIT_LENGTH,
+    MAX_AMOUNT,
     MIN_AMOUNT,
     MIN_COOKING_TIME,
-    TAG_REGEX
+
 )
 from users.models import User
 
@@ -60,15 +62,15 @@ class Ingredient(Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=('name', 'measurement_unit',),
                 name='unique_for_ingredient',
             )
-        ]
+        )
 
     def __str__(self):
         return f'{self.name} {self.measurement_unit}'
@@ -82,17 +84,10 @@ class Ingredient(Model):
 class Tag(Model):
 
     name = CharField('Название тэга', max_length=MAX_TAG_LENGTH)
-    slug = SlugField(
-        'Slug',
-        max_length=MAX_TAG_LENGTH,
-        unique=True,
-        validators=[
-            RegexValidator(regex=TAG_REGEX, message='Недопустимый символ')
-        ],
-    )
+    slug = SlugField('Slug', max_length=MAX_TAG_LENGTH, unique=True)
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('name',)
         verbose_name = 'Тэг'
         verbose_name_plural = 'Тэги'
 
@@ -110,7 +105,8 @@ class Recipe(Model):
     cooking_time = PositiveSmallIntegerField(
         'Время приготовления',
         validators=[
-            MinValueValidator(MIN_COOKING_TIME)
+            MinValueValidator(MIN_COOKING_TIME),
+            MaxValueValidator(MAX_COOKING_TIME)
         ]
     )
     author = ForeignKey(
@@ -130,12 +126,12 @@ class Recipe(Model):
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=('name', 'author'),
                 name='unique_for_author',
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'{self.name}. Автор: {self.author.username}'
@@ -162,7 +158,8 @@ class RecipeIngredient(Model):
     amount = PositiveSmallIntegerField(
         'Количество',
         validators=[
-            MinValueValidator(MIN_AMOUNT)
+            MinValueValidator(MIN_AMOUNT),
+            MaxValueValidator(MAX_AMOUNT)
         ]
     )
 
@@ -170,12 +167,12 @@ class RecipeIngredient(Model):
         ordering = ('recipe',)
         verbose_name = 'Ингредиент для рецепта'
         verbose_name_plural = 'Ингредиенты для рецепта'
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=('recipe', 'ingredient',),
                 name='unique_ingredient_in_recipe',
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'{self.amount} {self.ingredient}'
@@ -197,15 +194,15 @@ class FavoriteRecipe(Model):
     )
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('user',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=('user', 'recipe',),
                 name='unique_user_favorite_recipe',
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return self.recipe.name
@@ -227,15 +224,15 @@ class ShoppingList(Model):
     )
 
     class Meta:
-        ordering = ('-id',)
+        ordering = ('user',)
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-        constraints = [
+        constraints = (
             UniqueConstraint(
                 fields=('user', 'recipe',),
                 name='unique_user_shopping_list',
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return self.recipe.name

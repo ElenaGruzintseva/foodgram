@@ -7,13 +7,16 @@ from foodgram.constants import MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, REGEX
 
 class User(AbstractUser):
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
     username = models.CharField(
         'Логин',
         max_length=MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[
+        validators=(
             RegexValidator(regex=REGEX, message='Недопустимый символ'),
-        ],
+        ),
     )
     first_name = models.CharField('Имя', max_length=MAX_USERNAME_LENGTH)
     last_name = models.CharField('Фамилия', max_length=MAX_USERNAME_LENGTH)
@@ -23,11 +26,9 @@ class User(AbstractUser):
     avatar = models.ImageField(
         'Аватар', upload_to='users/', null=True, blank=True
     )
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('email', 'username',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
@@ -51,15 +52,15 @@ class Subscribe(models.Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('user',)
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('user', 'author',),
                 name='unique_user_author',
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'{self.user.username} подписан(а) на {self.author.username}'
