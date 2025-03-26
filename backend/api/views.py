@@ -6,13 +6,13 @@ from django.urls import reverse
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
-    HTTP_204_NO_CONTENT
+    HTTP_204_NO_CONTENT,
+    HTTP_400_BAD_REQUEST,
 )
 
 from .filters import IngredientFilter, RecipeFilter
@@ -24,12 +24,13 @@ from .serializers import (
     RecipeGETSerializer,
     ShoppingListSerializer,
     SubscriptionSerializer,
+    SubscribeCreateSerializer,
     TagSerializer,
 )
 from .data_handlers import (
     add_favorite_or_shopping_list,
     generate_shopping_list_pdf,
-    remove_favorite_or_shopping_list
+    remove_favorite_or_shopping_list,
 )
 from recipes.models import (
     FavoriteRecipe,
@@ -37,7 +38,7 @@ from recipes.models import (
     Recipe,
     RecipeIngredient,
     ShoppingList,
-    Tag
+    Tag,
 )
 from users.models import Subscribe, User
 
@@ -87,28 +88,34 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(
         detail=True,
-        methods=('post', 'delete',),
+        methods=('post',),
         url_path='subscribe',
         permission_classes=[IsAuthenticated],
     )
-    def subscribe(self, request, id=None):
-        author = get_object_or_404(User, pk=id)
+    def subscribe(self, request, pk=None):
+        author = get_object_or_404(User, id=pk)
+        serializer = SubscribeCreateSerializer(
+            data={'user': request.user.id, 'author': author.id},
+            context={'request': request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_201_CREATED)
+
+    @subscribe.mapping.delete
+    def delete_subscribe(self, request, pk=None):
         user = request.user
-        if user == author:
-            raise ValidationError('Нельзя подписаться на самого себя.')
-        if request.method == 'POST':
-            _, created = Subscribe.objects.get_or_create(
-                user=user, author=author
-            )
-            if not created:
-                raise ValidationError('Вы уже подписаны на этого пользователя')
+        author = get_object_or_404(User, id=pk)
+
+        deleted_count, _ = Subscribe.objects.filter(
+            user=user, author=author
+        ).delete()
+        if deleted_count == 0:
             return Response(
-                SubscriptionSerializer(
-                    author, context={'request': request}
-                ).data,
-                status=HTTP_201_CREATED,
+                {'ошибка': 'Вы не подписаны на этого автора.'},
+                status=HTTP_400_BAD_REQUEST,
             )
-        get_object_or_404(Subscribe, user=user, author=author).delete()
+
         return Response(status=HTTP_204_NO_CONTENT)
 
 
