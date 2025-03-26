@@ -4,7 +4,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from djoser.views import UserViewSet as DjoserUserViewSet
-from djoser.serializers import SetPasswordSerializer
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -25,8 +24,6 @@ from .serializers import (
     RecipeGETSerializer,
     ShoppingListSerializer,
     SubscriptionSerializer,
-    UserGETSerializer,
-    UserPOSTSerializer,
     TagSerializer,
 )
 from .data_handlers import (

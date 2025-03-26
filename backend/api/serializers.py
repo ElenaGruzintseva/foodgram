@@ -1,10 +1,13 @@
-import base64
-from django.core.files.base import ContentFile
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from drf_extra_fields.fields import Base64ImageField
+
+from djoser.serializers import UserSerializer
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+)
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (
     BooleanField,
-    ImageField,
     IntegerField,
     ModelSerializer,
     PrimaryKeyRelatedField,
@@ -15,6 +18,8 @@ from rest_framework.serializers import (
 
 from .data_handlers import create_update_ingredients
 from foodgram.constants import (
+    MAX_AMOUNT,
+    MAX_COOKING_TIME,
     MIN_AMOUNT,
     MIN_COOKING_TIME,
 )
@@ -26,18 +31,7 @@ from recipes.models import (
     ShoppingList,
     Tag
 )
-from users.models import User
-
-
-class Base64ImageField(ImageField):
-
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr), name='temp.' + ext)
-
-        return super().to_internal_value(data)
+from users.models import Subscribe, User
 
 
 class RecipeReadSerializer(ModelSerializer):
@@ -81,36 +75,17 @@ class RecipeIngredientGETSerializer(ModelSerializer):
 
 class RecipeIngredientCreateSerializer(ModelSerializer):
 
-    id = IntegerField()
-    amount = IntegerField()
+    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = IntegerField(
+        validators=(
+            MinValueValidator(MIN_AMOUNT),
+            MaxValueValidator(MAX_AMOUNT),
+        )
+    )
 
     class Meta:
-        fields = (
-            'id',
-            'amount',
-        )
+        fields = ('id', 'amount',)
         model = RecipeIngredient
-
-    def validate_amount(self, value):
-        if value < MIN_AMOUNT:
-            raise ValidationError(
-                f'Количество ингредиента не может быть меньше {MIN_AMOUNT}'
-            )
-        return value
-
-
-class UserPOSTSerializer(UserCreateSerializer):
-    class Meta:
-        fields = (
-            'id',
-            'email',
-            'username',
-            'first_name',
-            'last_name',
-            'password',
-            'avatar',
-        )
-        model = User
 
 
 class UserGETSerializer(UserSerializer):
@@ -166,6 +141,12 @@ class RecipeCreateSerializer(ModelSerializer):
         queryset=Tag.objects.all(), many=True, required=True
     )
     ingredients = RecipeIngredientCreateSerializer(many=True, required=True)
+    cooking_time = IntegerField(
+        validators=(
+            MinValueValidator(MIN_COOKING_TIME),
+            MaxValueValidator(MAX_COOKING_TIME),
+        )
+    )
 
     class Meta:
         fields = (
@@ -181,7 +162,6 @@ class RecipeCreateSerializer(ModelSerializer):
     def validate(self, obj):
         ingredients = obj.get('ingredients', [])
         tags = obj.get('tags', [])
-        cooking_time = obj.get('cooking_time', 0)
 
         if not tags:
             raise ValidationError(
@@ -209,11 +189,6 @@ class RecipeCreateSerializer(ModelSerializer):
                     'Ингредиент уже добавлен в рецепт'
                 )
             ingredients_list.add(ingredient_id)
-
-        if cooking_time < MIN_COOKING_TIME:
-            raise ValidationError(
-                f'Время готовки не может быть менее {MIN_COOKING_TIME} мин'
-            )
 
         return obj
 
@@ -333,3 +308,21 @@ class SubscriptionSerializer(UserGETSerializer):
         return RecipeReadSerializer(
             queryset, many=True, context={'request': request}
         ).data
+
+
+class SubscribeCreateSerializer(ModelSerializer):
+    class Meta:
+        model = Subscribe
+        fields = ('user', 'author')
+
+    def validate(self, attrs):
+        user = attrs['user']
+        author = attrs['author']
+
+        if user == author:
+            raise ValidationError('Нельзя подписываться на самого себя.')
+
+        if Subscribe.objects.filter(user=user, author=author).exists():
+            raise ValidationError('Вы уже подписаны на этого пользователя.')
+
+        return attrs
