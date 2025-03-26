@@ -312,9 +312,7 @@ class AvatarSerializer(ModelSerializer):
 class SubscriptionSerializer(UserGETSerializer):
 
     recipes = SerializerMethodField()
-    recipes_count = IntegerField(
-        source='recipes.count', read_only=True
-    )
+    recipes_count = IntegerField()
 
     class Meta(UserSerializer.Meta):
         model = User
@@ -324,9 +322,18 @@ class SubscriptionSerializer(UserGETSerializer):
             'recipes_count',
         )
 
-    def get_recipes(self, recipe):
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        recipes_limit = request.query_params.get('recipes_limit')
+        queryset = obj.recipes.all()
+
+        if recipes_limit:
+            try:
+                recipes_limit = int(recipes_limit)
+                queryset = queryset[:recipes_limit]
+            except ValueError:
+                pass
+
         return RecipeReadSerializer(
-            recipe.recipes.all()[:int(
-                self.context.get('request').GET.get('recipes_limit', 10**10)
-            )], many=True, context=self.context
+            queryset, many=True, context={'request': request}
         ).data
