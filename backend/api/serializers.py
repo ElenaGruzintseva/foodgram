@@ -301,7 +301,7 @@ class ShoppingListSerializer(ModelSerializer):
         ).data
 
 
-class AvatarUserSerializer(ModelSerializer):
+class AvatarSerializer(ModelSerializer):
     avatar = Base64ImageField(required=True)
 
     class Meta:

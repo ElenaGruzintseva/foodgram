@@ -18,7 +18,7 @@ from rest_framework.status import (
 
 from .filters import IngredientFilter, RecipeFilter
 from .serializers import (
-    AvatarUserSerializer,
+    AvatarSerializer,
     FavoriteSerializer,
     IngredientSerializer,
     RecipeCreateSerializer,
@@ -47,32 +47,21 @@ from users.models import Subscribe, User
 
 class UserViewSet(DjoserUserViewSet):
 
-    def get_serializer_class(self):
-        if self.action == 'set_password':
-            return SetPasswordSerializer
-        if self.request.method == 'GET':
-            return UserGETSerializer
-        return UserPOSTSerializer
-
-    def get_permissions(self):
-        if self.action == 'me':
-            return [IsAuthenticated()]
-        if self.action in ('list', 'retrieve'):
-            return [AllowAny()]
-        return super().get_permissions()
-
     @action(
         detail=False,
-        methods=('put', 'delete'),
+        methods=('put',),
         permission_classes=[IsAuthenticated],
         url_path='me/avatar',
     )
     def avatar(self, request):
-        if request.method == 'PUT':
-            serializer = AvatarUserSerializer(request.user, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
+        serializer = AvatarSerializer(request.user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    @avatar.mapping.delete
+    def delete_avatar(self, request):
+        request.user.avatar.delete()
         request.user.avatar = None
         request.user.save()
         return Response(status=HTTP_204_NO_CONTENT)
