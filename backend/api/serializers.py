@@ -42,10 +42,6 @@ class Base64ImageField(ImageField):
 
 class RecipeReadSerializer(ModelSerializer):
 
-    image = Base64ImageField(read_only=True)
-    name = ReadOnlyField()
-    cooking_time = ReadOnlyField()
-
     class Meta:
         fields = ('id', 'name', 'image', 'cooking_time')
         model = Recipe
