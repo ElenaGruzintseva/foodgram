@@ -63,7 +63,7 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(
         detail=False,
-        methods=['put', 'delete'],
+        methods=('put', 'delete'),
         permission_classes=[IsAuthenticated],
         url_path='me/avatar',
     )
@@ -100,7 +100,7 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=('post', 'delete',),
         url_path='subscribe',
         permission_classes=[IsAuthenticated],
     )
