@@ -1,4 +1,4 @@
-from django.db.models import F, Sum
+from django.db.models import Count, F, Sum
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -68,22 +68,23 @@ class UserViewSet(DjoserUserViewSet):
 
     @action(
         detail=False,
+        methods=('get',),
         permission_classes=[IsAuthenticated],
         url_path='subscriptions',
     )
     def subscriptions(self, request):
-        subscriptions = User.objects.filter(
-            subscriptions_to__user=request.user
+        user = request.user
+        queryset = User.objects.filter(following__user=user).annotate(
+            recipes_count=Count('recipes')
         )
-        page = self.paginate_queryset(subscriptions)
+        page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = SubscriptionSerializer(
                 page, many=True, context={'request': request}
             )
             return self.get_paginated_response(serializer.data)
-
         serializer = SubscriptionSerializer(
-            subscriptions, many=True, context={'request': request}
+            queryset, many=True, context={'request': request}
         )
         return Response(serializer.data)
 
