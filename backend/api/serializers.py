@@ -13,7 +13,7 @@ from rest_framework.serializers import (
 
 )
 
-from .utils import create_update_ingredients
+from .data_handlers import create_update_ingredients
 from foodgram.constants import (
     MIN_AMOUNT,
     MIN_COOKING_TIME,

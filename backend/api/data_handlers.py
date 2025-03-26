@@ -21,9 +21,9 @@ def create_update_ingredients(recipe, ingredients_data):
     RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
 
-def add_favorite_or_shopping_list(request, user, model, serializer_class, pk):
-    if not (recipe := Recipe.objects.filter(id=pk).first()):
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+def add_favorite_or_shopping_list(request, serializer_class, pk):
+    user = request.user
+    recipe = get_object_or_404(Recipe, id=pk)
 
     serializer = serializer_class(
         data={'user': user.id, 'recipe': recipe.id},
@@ -35,17 +35,17 @@ def add_favorite_or_shopping_list(request, user, model, serializer_class, pk):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-def remove_favorite_or_shopping_list(user, model, pk):
+def remove_favorite_or_shopping_list(request, model, pk):
+    user = request.user
     recipe = get_object_or_404(Recipe, id=pk)
 
-    recipe_delete = model.objects.filter(user=user, recipe=recipe)
-    if not recipe_delete.exists():
+    deleted_count, _ = model.objects.filter(user=user, recipe=recipe).delete()
+    if deleted_count == 0:
         return Response(
             {'ошибка': 'рецепт не найден в избранном или списке покупок'},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    recipe_delete.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 

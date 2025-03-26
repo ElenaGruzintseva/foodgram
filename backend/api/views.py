@@ -29,7 +29,7 @@ from .serializers import (
     UserPOSTSerializer,
     TagSerializer,
 )
-from .utils import (
+from .data_handlers import (
     add_favorite_or_shopping_list,
     generate_shopping_list_pdf,
     remove_favorite_or_shopping_list
@@ -183,15 +183,15 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk):
-        user = request.user
-
         if request.method == 'POST':
             return add_favorite_or_shopping_list(
-                request, user, FavoriteRecipe, FavoriteSerializer, pk
+                request, FavoriteSerializer, pk
             )
 
         elif request.method == 'DELETE':
-            return remove_favorite_or_shopping_list(user, FavoriteRecipe, pk)
+            return remove_favorite_or_shopping_list(
+                request, FavoriteRecipe, pk
+            )
 
     @action(
         detail=True,
@@ -199,15 +199,13 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
-        user = request.user
-
         if request.method == 'POST':
             return add_favorite_or_shopping_list(
-                request, user, ShoppingList, ShoppingListSerializer, pk
+                request, ShoppingListSerializer, pk
             )
 
         elif request.method == 'DELETE':
-            return remove_favorite_or_shopping_list(user, ShoppingList, pk)
+            return remove_favorite_or_shopping_list(request, ShoppingList, pk)
 
     @action(
         detail=False,
