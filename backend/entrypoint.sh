@@ -13,10 +13,9 @@ python manage.py create_superuser -u
 python manage.py load_users
 python manage.py load_tags
 python manage.py load_ingredients
-cp -r /app/media/images* /app/media/recipes/
+cp -r /app/recipes/static/images* /app/media/recipes/
 python manage.py load_recipes
 python manage.py collectstatic --no-input
-cp -r /app/static/ /static/
 
 
 exec gunicorn -w 2 -b 0.0.0.0:8000 foodgram.wsgi:application --access-logfile - --error-logfile -

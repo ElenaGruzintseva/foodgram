@@ -6,26 +6,18 @@ from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
 
-from recipes.models import (
-    Ingredient,
-    Recipe,
-    RecipeIngredient
-)
+from recipes.models import Recipe, RecipeIngredient
 
 
 def create_update_ingredients(recipe, ingredients_data):
-    recipe_ingredients = []
-
-    for ingredient_data in ingredients_data:
-        ingredient_id = ingredient_data.get('id')
-        amount = ingredient_data.get('amount')
-        ingredient = get_object_or_404(Ingredient, id=ingredient_id)
-
-        recipe_ingredient = RecipeIngredient(
-            recipe=recipe, ingredient=ingredient, amount=amount
+    recipe_ingredients = [
+        RecipeIngredient(
+            recipe=recipe,
+            ingredient_id=ingredient['id'],
+            amount=ingredient['amount']
         )
-        recipe_ingredients.append(recipe_ingredient)
-
+        for ingredient in ingredients_data
+    ]
     RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
 
