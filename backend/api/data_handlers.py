@@ -1,5 +1,7 @@
-from django.http import HttpResponse
+from io import BytesIO
+
 from django.shortcuts import get_object_or_404
+from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
@@ -50,33 +52,32 @@ def remove_favorite_or_shopping_list(request, model, pk):
 
 
 def generate_shopping_list_pdf(recipes_in_shopping_list):
-    response = HttpResponse(content_type='application/pdf')
-    response[
-        'Content-Disposition'
-    ] = "attachment; filename='shopping_list.pdf'"
+    buffer = BytesIO()
 
-    p = canvas.Canvas(response)
+    p = canvas.Canvas(buffer, pagesize=letter)
 
-    pdfmetrics.registerFont(
-        TTFont('AV_Fontimer', './recipes/fonts/AV_Fontimer.ttf')
-    )
+    pdfmetrics.registerFont(TTFont(
+        'AV_Fontimer', './recipes/fonts/AV_Fontimer.ttf'
+    ))
     p.setFont('AV_Fontimer', 15)
 
     p.drawString(100, 800, 'Список покупок:')
-
     y_position = 780
 
     for recipe in recipes_in_shopping_list:
-        name = recipe['ingredient__name']
+        name = recipe['ingredient_name']
         total_amount = recipe['total_amount']
-        measurement_unit = recipe['ingredient__measurement_unit']
+        measurement_unit = recipe['measurement_unit']
 
         item_text = f'{name} ({measurement_unit}) - {total_amount}'
         p.drawString(100, y_position, item_text)
-
         y_position -= 20
 
-    p.showPage()
-    p.save()
+        if y_position < 50:
+            p.showPage()
+            p.setFont('AV_Fontimer', 15)
+            y_position = 780
 
-    return response
+    p.save()
+    buffer.seek(0)
+    return buffer

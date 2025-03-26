@@ -1,5 +1,5 @@
-from django.db.models import Sum
-from django.http import HttpResponse
+from django.db.models import F, Sum
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -218,20 +218,22 @@ class RecipeViewSet(ModelViewSet):
     )
     def download_shopping_cart(self, request):
         user = request.user
+
         recipes_in_shopping_list = (
             RecipeIngredient.objects.filter(
                 recipe__in_shopping_lists__user=user
+            ).values(
+                ingredient_name=F('ingredient__name'),
+                measurement_unit=F('ingredient__measurement_unit'),
             )
-            .values('ingredient__name', 'ingredient__measurement_unit')
             .annotate(total_amount=Sum('amount'))
+            .order_by('ingredient_name')
         )
 
         pdf_buffer = generate_shopping_list_pdf(recipes_in_shopping_list)
 
-        response = HttpResponse(
-            pdf_buffer.getvalue(), content_type='application/pdf'
-        )
+        response = FileResponse(pdf_buffer, content_type='application/pdf')
         response[
             'Content-Disposition'
-        ] = "attachment; filename='shopping_list.pdf'"
+        ] = 'attachment; filename="shopping_list.pdf"'
         return response
