@@ -39,19 +39,20 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('name', 'author__username', 'tags__name',)
     readonly_fields = ('favorite_count',)
 
-    @admin.display(description='Избранное')
+    @admin.display(description='В избранном')
     def favorite_count(self, recipe):
         return recipe.favorites.count()
 
     @admin.display(description='Теги')
-    def display_tags(self, obj):
-        return ", ".join([tag.name for tag in obj.tags.all()])
+    def display_tags(self, recipe):
+        return ', '.join([tag.name for tag in recipe.tags.all()])
 
     @admin.display(description='Ингредиенты')
-    def display_ingredients(self, obj):
-        return ", ".join(
-            f"{entry.ingredient.name} ({entry.ingredient.measurement_unit}) - {entry.amount}"
-            for entry in obj.recipes.all()
+    def display_ingredients(self, recipe):
+        return ', '.join(
+            f'{entry.ingredient.name}'
+            f'{entry.amount} ({entry.ingredient.measurement_unit})'
+            for entry in recipe.recipes.all()
         )
 
 
