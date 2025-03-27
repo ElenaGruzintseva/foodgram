@@ -50,7 +50,7 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='Ингредиенты')
     def display_ingredients(self, recipe):
         return ', '.join(
-            f'{entry.ingredient.name}'
+            f'{entry.ingredient.name} '
             f'{entry.amount} ({entry.ingredient.measurement_unit})'
             for entry in recipe.recipes.all()
         )
