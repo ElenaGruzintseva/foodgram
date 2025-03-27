@@ -61,8 +61,8 @@ def generate_shopping_list_pdf(recipes_in_shopping_list):
     ))
     p.setFont('AV_Fontimer', 15)
 
-    p.drawString(100, 800, 'Список покупок:')
-    y_position = 780
+    p.drawString(100, 760, 'Список покупок:')
+    y_position = 730
 
     for recipe in recipes_in_shopping_list:
         name = recipe['ingredient_name']
@@ -76,7 +76,7 @@ def generate_shopping_list_pdf(recipes_in_shopping_list):
         if y_position < 50:
             p.showPage()
             p.setFont('AV_Fontimer', 15)
-            y_position = 780
+            y_position = 730
 
     p.save()
     buffer.seek(0)
