@@ -21,25 +21,44 @@ class RecipeIngredientInline(admin.TabularInline):
 class RecipeAdmin(admin.ModelAdmin):
 
     inlines = (RecipeIngredientInline,)
-    list_display = ('name', 'author', 'favorite_count')
+    list_display = (
+        'name',
+        'author',
+        'cooking_time',
+        'favorite_count',
+        'display_tags',
+        'display_ingredients',
+    )
     fields = (
         ('name', 'cooking_time',),
         ('author', 'tags',),
         ('text', 'image',),
     )
-    list_filter = ('author', 'name', 'tags')
+    list_filter = ('author', 'name', 'tags',)
     filter_horizontal = ('tags',)
-    search_fields = ('name', 'author__username', 'tags__name')
+    search_fields = ('name', 'author__username', 'tags__name',)
+    readonly_fields = ('favorite_count',)
 
     @admin.display(description='Избранное')
     def favorite_count(self, recipe):
         return recipe.favorites.count()
 
+    @admin.display(description='Теги')
+    def display_tags(self, obj):
+        return ", ".join([tag.name for tag in obj.tags.all()])
+
+    @admin.display(description='Ингредиенты')
+    def display_ingredients(self, obj):
+        return ", ".join(
+            f"{entry.ingredient.name} ({entry.ingredient.measurement_unit}) - {entry.amount}"
+            for entry in obj.recipes.all()
+        )
+
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
 
-    list_display = ('name', 'measurement_unit')
+    list_display = ('name', 'measurement_unit',)
     list_filter = ('name',)
     search_fields = ('name',)
 
@@ -47,7 +66,7 @@ class IngredientAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
 
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug',)
     list_filter = ('name',)
     search_fields = ('name',)
 
@@ -55,12 +74,12 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(FavoriteRecipe)
 class FavoriteRecipeAdmin(admin.ModelAdmin):
 
-    list_display = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
+    list_display = ('user', 'recipe',)
+    search_fields = ('user', 'recipe',)
 
 
 @admin.register(ShoppingList)
 class ShoppingListAdmin(admin.ModelAdmin):
 
-    list_display = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
+    list_display = ('user', 'recipe',)
+    search_fields = ('user', 'recipe',)
