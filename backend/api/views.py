@@ -32,6 +32,7 @@ from .data_handlers import (
     generate_shopping_list_pdf,
     remove_favorite_or_shopping_list,
 )
+from .pagination import CustomPagination
 from recipes.models import (
     FavoriteRecipe,
     Ingredient,
@@ -44,6 +45,7 @@ from users.models import Subscribe, User
 
 
 class UserViewSet(DjoserUserViewSet):
+    pagination_class = CustomPagination
 
     @action(
         detail=False,
@@ -215,7 +217,7 @@ class RecipeViewSet(ModelViewSet):
 
         recipes_in_shopping_list = (
             RecipeIngredient.objects.filter(
-                recipe__in_shopping_lists__user=user
+                recipe__shopping_lists__user=user
             ).values(
                 ingredient_name=F('ingredient__name'),
                 measurement_unit=F('ingredient__measurement_unit'),
