@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as UserAdmins
+
 from .models import Subscribe, User
 
 admin.site.empty_value_display = 'Не задано'
