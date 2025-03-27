@@ -9,9 +9,26 @@ admin.site.empty_value_display = 'Не задано'
 @admin.register(User)
 class UserAdmin(UserAdmins):
 
-    list_display = ('username', 'first_name', 'last_name', 'email', 'avatar',)
+    list_display = (
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'avatar',
+        'recipes_count',
+        'subscriptions_count',
+    )
+
     list_filter = ('username', 'email')
     search_fields = ('username', 'email',)
+
+    @admin.display(description='Подписчики')
+    def subscriptions_count(self, user):
+        return user.subscriptions_to.count()
+
+    @admin.display(description='Рецепты')
+    def recipes_count(self, user):
+        return user.recipes.count()
 
 
 @admin.register(Subscribe)
