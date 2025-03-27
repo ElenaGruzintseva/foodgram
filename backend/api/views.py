@@ -105,9 +105,9 @@ class UserViewSet(DjoserUserViewSet):
         return Response(serializer.data, status=HTTP_201_CREATED)
 
     @subscribe.mapping.delete
-    def delete_subscribe(self, request, pk=None):
+    def delete_subscribe(self, request, id=None):
         user = request.user
-        author = get_object_or_404(User, pk=pk)
+        author = get_object_or_404(User, pk=id)
 
         deleted_count, _ = Subscribe.objects.filter(
             user=user, author=author

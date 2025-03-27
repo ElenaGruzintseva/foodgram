@@ -20,7 +20,6 @@ def create_update_ingredients(recipe, ingredients_data):
         )
         for ingredient in ingredients_data
     ]
-    print("INGREDIENTS_DATA:", ingredients_data)
     RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
 

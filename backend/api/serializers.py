@@ -255,14 +255,12 @@ class SubscriptionSerializer(UserGETSerializer):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         queryset = obj.recipes.all()
-        print("RECIPES_LIMIT:", recipes_limit)
         if recipes_limit:
             try:
                 recipes_limit = int(recipes_limit)
                 queryset = queryset[:recipes_limit]
             except ValueError:
                 pass
-        print("RECIPES_LIMIT_INT:", recipes_limit)
         return RecipeReadSerializer(
             queryset, many=True, context={'request': request}
         ).data
@@ -295,7 +293,6 @@ class SubscribeCreateSerializer(ModelSerializer):
         ).annotate(
             recipes_count=Count('recipes')
         ).first()
-        print("ANNOTATED_USER:", author.recipes_count)
         return SubscriptionSerializer(
             author, context={'request': request}
         ).data
