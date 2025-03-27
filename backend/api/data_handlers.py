@@ -15,11 +15,12 @@ def create_update_ingredients(recipe, ingredients_data):
     recipe_ingredients = [
         RecipeIngredient(
             recipe=recipe,
-            ingredient_id=ingredient['id'],
+            ingredient_id=ingredient['ingredient'].id,
             amount=ingredient['amount']
         )
         for ingredient in ingredients_data
     ]
+    print("INGREDIENTS_DATA:", ingredients_data)
     RecipeIngredient.objects.bulk_create(recipe_ingredients)
 
 

@@ -74,7 +74,8 @@ class RecipeIngredientGETSerializer(ModelSerializer):
 
 class RecipeIngredientCreateSerializer(ModelSerializer):
 
-    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all(),
+                                source='ingredient')
     amount = IntegerField(
         validators=(
             MinValueValidator(MIN_AMOUNT),
@@ -161,7 +162,7 @@ class RecipeCreateSerializer(ModelSerializer):
 
     def validate(self, obj):
         ingredients = obj.get('ingredients', [])
-        ingredient_ids = [item['id'] for item in ingredients]
+        ingredient_ids = [item['ingredient'].id for item in ingredients]
 
         if len(ingredient_ids) != len(set(ingredient_ids)):
             raise ValidationError('Ингредиенты не должны повторяться.')
@@ -279,14 +280,14 @@ class SubscribeCreateSerializer(ModelSerializer):
             )
         )
 
-    def validate(self, attrs):
-        user = attrs['user']
-        author = attrs['author']
+    def validate(self, obj):
+        user = obj['user']
+        author = obj['author']
 
         if user == author:
             raise ValidationError('Нельзя подписываться на самого себя.')
 
-        return attrs
+        return obj
 
     def to_representation(self, instance):
         request = self.context.get('request')
