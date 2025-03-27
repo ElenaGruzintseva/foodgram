@@ -75,7 +75,7 @@ class RecipeIngredientGETSerializer(ModelSerializer):
 class RecipeIngredientCreateSerializer(ModelSerializer):
 
     id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all(),
-                                source='ingredient_id')
+                                source='ingredient')
     amount = IntegerField(
         validators=(
             MinValueValidator(MIN_AMOUNT),
@@ -162,7 +162,7 @@ class RecipeCreateSerializer(ModelSerializer):
 
     def validate(self, obj):
         ingredients = obj.get('ingredients', [])
-        ingredient_ids = [item['id'] for item in ingredients]
+        ingredient_ids = [item['ingredient'].id for item in ingredients]
 
         if len(ingredient_ids) != len(set(ingredient_ids)):
             raise ValidationError('Ингредиенты не должны повторяться.')
