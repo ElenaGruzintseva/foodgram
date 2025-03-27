@@ -74,7 +74,7 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
         user = request.user
-        queryset = User.objects.filter(following__user=user).annotate(
+        queryset = User.objects.filter(subscriptions_from__user=user).annotate(
             recipes_count=Count('recipes')
         )
         page = self.paginate_queryset(queryset)
@@ -94,10 +94,10 @@ class UserViewSet(DjoserUserViewSet):
         url_path='subscribe',
         permission_classes=[IsAuthenticated],
     )
-    def subscribe(self, request, pk=None):
-        author = get_object_or_404(User, id=pk)
+    def subscribe(self, request, id=None):
+        author = get_object_or_404(User, pk=id)
         serializer = SubscribeCreateSerializer(
-            data={'user': request.user.id, 'author': author.id},
+            data={'user': request.user.pk, 'author': author.pk},
             context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
@@ -107,7 +107,7 @@ class UserViewSet(DjoserUserViewSet):
     @subscribe.mapping.delete
     def delete_subscribe(self, request, pk=None):
         user = request.user
-        author = get_object_or_404(User, id=pk)
+        author = get_object_or_404(User, pk=pk)
 
         deleted_count, _ = Subscribe.objects.filter(
             user=user, author=author

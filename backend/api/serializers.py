@@ -1,4 +1,5 @@
 from drf_extra_fields.fields import Base64ImageField
+from django.db.models import Count
 from djoser.serializers import UserSerializer
 from django.core.validators import (
     MaxValueValidator,
@@ -170,7 +171,6 @@ class RecipeCreateSerializer(ModelSerializer):
         return obj
 
     def create(self, validated_data):
-        print("VALIDATE_DATA:", validated_data)
         user = self.context.get('request').user
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
@@ -241,7 +241,7 @@ class AvatarSerializer(ModelSerializer):
 class SubscriptionSerializer(UserGETSerializer):
 
     recipes = SerializerMethodField()
-    recipes_count = IntegerField()
+    recipes_count = SerializerMethodField()
 
     class Meta(UserSerializer.Meta):
         model = User
@@ -255,14 +255,14 @@ class SubscriptionSerializer(UserGETSerializer):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         queryset = obj.recipes.all()
-
+        print("RECIPES_LIMIT:", recipes_limit)
         if recipes_limit:
             try:
                 recipes_limit = int(recipes_limit)
                 queryset = queryset[:recipes_limit]
             except ValueError:
                 pass
-
+        print("RECIPES_LIMIT_INT:", recipes_limit)
         return RecipeReadSerializer(
             queryset, many=True, context={'request': request}
         ).data
@@ -271,19 +271,18 @@ class SubscriptionSerializer(UserGETSerializer):
 class SubscribeCreateSerializer(ModelSerializer):
     class Meta:
         model = Subscribe
-        fields = ('user', 'author')
-        validators = (
+        fields = ('user', 'author',)
+        validators = [
             UniqueTogetherValidator(
                 queryset=Subscribe.objects.all(),
                 fields=('user', 'author'),
                 message='Вы уже подписаны на этого автора.',
             )
-        )
+        ]
 
     def validate(self, obj):
         user = obj['user']
         author = obj['author']
-
         if user == author:
             raise ValidationError('Нельзя подписываться на самого себя.')
 
@@ -291,7 +290,12 @@ class SubscribeCreateSerializer(ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get('request')
-
+        author = User.objects.filter(
+            id=instance.author.id
+        ).annotate(
+            recipes_count=Count('recipes')
+        ).first()
+        print("ANNOTATED_USER:", author.recipes_count)
         return SubscriptionSerializer(
-            instance.author, context={'request': request}
+            author, context={'request': request}
         ).data
