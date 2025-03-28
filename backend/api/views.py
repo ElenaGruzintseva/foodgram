@@ -74,7 +74,7 @@ class UserViewSet(DjoserUserViewSet):
     )
     def subscriptions(self, request):
         user = request.user
-        queryset = User.objects.filter(subscriptions_from__user=user).annotate(
+        queryset = User.objects.filter(subscriptions_to__user=user).annotate(
             recipes_count=Count('recipes')
         ).order_by('id')
         page = self.paginate_queryset(queryset)
