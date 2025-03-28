@@ -76,10 +76,8 @@ class UserViewSet(DjoserUserViewSet):
         user = request.user
         queryset = User.objects.filter(subscriptions_from__user=user).annotate(
             recipes_count=Count('recipes')
-        )
-        print("QUERYSET_FROM_VIEW:", queryset)
+        ).order_by('id')
         page = self.paginate_queryset(queryset)
-        print("PAGE_FROM_VIEW:", page)
         if page is not None:
             serializer = SubscriptionSerializer(
                 page, many=True, context={'request': request}
