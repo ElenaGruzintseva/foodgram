@@ -241,7 +241,7 @@ class AvatarSerializer(ModelSerializer):
 class SubscriptionSerializer(UserGETSerializer):
 
     recipes = SerializerMethodField()
-    recipes_count = SerializerMethodField()
+    recipes_count = IntegerField(read_only=True)
 
     class Meta(UserSerializer.Meta):
         model = User
@@ -255,15 +255,13 @@ class SubscriptionSerializer(UserGETSerializer):
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         queryset = obj.recipes.all()
-        print("RECIPES_LIMIT_FROM_SER:", recipes_limit)
-        print("QUERYSET_BEFORE_LIMIT_FROM_SER:", queryset)
+
         if recipes_limit:
             try:
                 recipes_limit = int(recipes_limit)
                 queryset = queryset[:recipes_limit]
             except ValueError:
                 pass
-        print("QUERYSET_AFTER_LIMIT_FROM_SER:", queryset)
         return RecipeReadSerializer(
             queryset, many=True, context={'request': request}
         ).data
@@ -296,7 +294,6 @@ class SubscribeCreateSerializer(ModelSerializer):
         ).annotate(
             recipes_count=Count('recipes')
         ).first()
-        print("AUTHOR_FROM_creatSER:", author)
         return SubscriptionSerializer(
             author, context={'request': request}
         ).data
