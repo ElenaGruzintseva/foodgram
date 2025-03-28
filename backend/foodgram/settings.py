@@ -135,5 +135,9 @@ DJOSER = {
     'SERIALIZERS': {
         'user': 'api.serializers.UserGETSerializer',
         'current_user': 'api.serializers.UserGETSerializer',
-    }
+    },
+    "PERMISSIONS": {
+        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        "user_list": ["rest_framework.permissions.AllowAny"],
+    },
 }
