@@ -5,7 +5,7 @@ from .models import Recipe
 
 def redirect_to_recipe_detail(request, pk):
     try:
-        recipe = Recipe.objects.get(pk=pk)
+        Recipe.objects.get(pk=pk)
         return redirect(f'/recipes/{pk}/')
     except Recipe.DoesNotExist:
         return redirect('/not-found/')
