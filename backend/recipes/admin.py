@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 
 from .models import (
     FavoriteRecipe,
@@ -25,6 +26,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'name',
         'author',
         'cooking_time',
+        'display_image',
         'favorite_count',
         'display_tags',
         'display_ingredients',
@@ -53,6 +55,13 @@ class RecipeAdmin(admin.ModelAdmin):
             f'{entry.ingredient.name} '
             f'{entry.amount} ({entry.ingredient.measurement_unit})'
             for entry in recipe.recipes.all()
+        )
+
+    @admin.display(description='Изображение')
+    @mark_safe
+    def display_image(self, recipe):
+        return mark_safe(
+            f'<img src={recipe.image.url} width="80" height="60">'
         )
 
 
