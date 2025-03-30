@@ -8,7 +8,7 @@ from foodgram.constants import MAX_EMAIL_LENGTH, MAX_USERNAME_LENGTH, REGEX
 class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name',)
 
     username = models.CharField(
         'Логин',

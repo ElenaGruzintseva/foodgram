@@ -157,8 +157,12 @@ class RecipeIngredient(Model):
     amount = PositiveSmallIntegerField(
         'Количество',
         validators=(
-            MinValueValidator(MIN_AMOUNT),
-            MaxValueValidator(MAX_AMOUNT)
+            MinValueValidator(
+                MIN_AMOUNT, message='Количество должно быть больше 0'
+            ),
+            MaxValueValidator(
+                MAX_AMOUNT, message='Количество должно быть меньше 32767'
+            )
         )
     )
 
@@ -177,7 +181,7 @@ class RecipeIngredient(Model):
         return f'{self.amount} {self.ingredient}'
 
 
-class AbstractShoppingFavoriteRecipe(Model):
+class ShoppingFavoriteUserRecipe(Model):
     user = ForeignKey(
         User,
         on_delete=CASCADE,
@@ -191,15 +195,15 @@ class AbstractShoppingFavoriteRecipe(Model):
 
     class Meta:
         abstract = True
-        ordering = ('-id',)
+        ordering = ('-recipe',)
 
     def __str__(self):
         return f'{self.recipe.name} ({self._meta.verbose_name})'
 
 
-class FavoriteRecipe(AbstractShoppingFavoriteRecipe):
+class FavoriteRecipe(ShoppingFavoriteUserRecipe):
 
-    class Meta(AbstractShoppingFavoriteRecipe.Meta):
+    class Meta(ShoppingFavoriteUserRecipe.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
         default_related_name = 'favorites'
@@ -211,9 +215,9 @@ class FavoriteRecipe(AbstractShoppingFavoriteRecipe):
         )
 
 
-class ShoppingList(AbstractShoppingFavoriteRecipe):
+class ShoppingList(ShoppingFavoriteUserRecipe):
 
-    class Meta(AbstractShoppingFavoriteRecipe.Meta):
+    class Meta(ShoppingFavoriteUserRecipe.Meta):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         default_related_name = 'shopping_lists'
