@@ -104,9 +104,15 @@ class Recipe(Model):
     cooking_time = PositiveSmallIntegerField(
         'Время приготовления',
         validators=(
-            MinValueValidator(MIN_COOKING_TIME),
-            MaxValueValidator(MAX_COOKING_TIME)
-        )
+            MinValueValidator(
+                MIN_COOKING_TIME,
+                message='Время приготовления должно быть больше 0'
+            ),
+            MaxValueValidator(
+                MAX_COOKING_TIME,
+                message='Время приготовления должно быть меньше 32767'
+            ),
+        ),
     )
     author = ForeignKey(
         User,
@@ -158,12 +164,14 @@ class RecipeIngredient(Model):
         'Количество',
         validators=(
             MinValueValidator(
-                MIN_AMOUNT, message='Количество должно быть больше 0'
+                MIN_AMOUNT,
+                message='Количество должно быть больше 0'
             ),
             MaxValueValidator(
-                MAX_AMOUNT, message='Количество должно быть меньше 32767'
-            )
-        )
+                MAX_AMOUNT,
+                message='Количество должно быть меньше 32767'
+            ),
+        ),
     )
 
     class Meta:
@@ -192,6 +200,12 @@ class ShoppingFavoriteUserRecipe(Model):
         on_delete=CASCADE,
         verbose_name='Рецепт',
     )
+    constraints = (
+        UniqueConstraint(
+            fields=('user', 'recipe'),
+            name='%(app_label)s_%(class)s_unique_user_recipe',
+        ),
+    )
 
     class Meta:
         abstract = True
@@ -207,12 +221,6 @@ class FavoriteRecipe(ShoppingFavoriteUserRecipe):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
         default_related_name = 'favorites'
-        constraints = (
-            UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_user_favorite_recipe',
-            ),
-        )
 
 
 class ShoppingList(ShoppingFavoriteUserRecipe):
@@ -221,9 +229,3 @@ class ShoppingList(ShoppingFavoriteUserRecipe):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         default_related_name = 'shopping_lists'
-        constraints = (
-            UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_user_shopping_list',
-            ),
-        )
