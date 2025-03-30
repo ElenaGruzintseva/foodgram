@@ -32,7 +32,7 @@ from .data_handlers import (
     generate_shopping_list_pdf,
     remove_favorite_or_shopping_list,
 )
-from .pagination import CustomPagination
+from .pagination import BasePagination
 from recipes.models import (
     FavoriteRecipe,
     Ingredient,
@@ -45,7 +45,7 @@ from users.models import Subscribe, User
 
 
 class UserViewSet(DjoserUserViewSet):
-    pagination_class = CustomPagination
+    pagination_class = BasePagination
 
     @action(
         detail=False,
