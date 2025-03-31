@@ -112,7 +112,7 @@ class UserViewSet(DjoserUserViewSet):
         ).delete()
         return Response({'ошибка': 'Вы не подписаны на этого автора.'},
                         status=HTTP_400_BAD_REQUEST if not deleted_count
-                        else Response(status=HTTP_204_NO_CONTENT))
+                        else HTTP_204_NO_CONTENT)
 
 
 class TagViewSet(ReadOnlyModelViewSet):
