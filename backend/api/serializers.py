@@ -214,9 +214,8 @@ class BaseFavoriteShoppingSerializer(ModelSerializer):
         return obj
 
     def to_representation(self, instance):
-        request = self.context.get('request')
         return RecipeReadSerializer(
-            instance.recipe, context={'request': request}
+            instance.recipe, context=self.context
         ).data
 
 
@@ -241,7 +240,7 @@ class AvatarSerializer(ModelSerializer):
 class SubscriptionSerializer(UserGETSerializer):
 
     recipes = SerializerMethodField()
-    recipes_count = IntegerField(read_only=True)
+    recipes_count = IntegerField(read_only=True, default=0)
 
     class Meta(UserSerializer.Meta):
         model = User
@@ -263,7 +262,7 @@ class SubscriptionSerializer(UserGETSerializer):
             except ValueError:
                 pass
         return RecipeReadSerializer(
-            queryset, many=True, context={'request': request}
+            queryset, many=True, context=self.context
         ).data
 
 
@@ -271,13 +270,13 @@ class SubscribeCreateSerializer(ModelSerializer):
     class Meta:
         model = Subscribe
         fields = ('user', 'author',)
-        validators = [
+        validators = (
             UniqueTogetherValidator(
                 queryset=Subscribe.objects.all(),
                 fields=('user', 'author'),
                 message='Вы уже подписаны на этого автора.',
-            )
-        ]
+            ),
+        )
 
     def validate(self, obj):
         user = obj['user']
