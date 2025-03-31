@@ -169,8 +169,8 @@ class RecipeCreateSerializer(ModelSerializer):
             raise ValidationError(
                 'Рецепт должен содержать как минимум один ингредиент.'
             )
-        ingredient_ids = [ingredient for ingredient in ingredients]
-        if len(ingredient_ids) != len(set(ingredients)):
+        ingredient_ids = [item['id'] for item in ingredients]
+        if len(ingredient_ids) != len(set(ingredient_ids)):
             raise ValidationError('Ингредиенты не должны повторяться.')
         return obj
 
