@@ -75,13 +75,10 @@ class RecipeIngredientGETSerializer(ModelSerializer):
 
 class RecipeIngredientCreateSerializer(ModelSerializer):
 
-    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all(),
-                                source='ingredient')
+    id = PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = IntegerField(
-        validators=(
-            MinValueValidator(MIN_AMOUNT),
-            MaxValueValidator(MAX_AMOUNT),
-        )
+        min_value=MIN_AMOUNT,
+        max_value=MAX_AMOUNT,
     )
 
     class Meta:
@@ -100,13 +97,11 @@ class UserGETSerializer(UserSerializer):
             *UserSerializer.Meta.fields,
         )
 
-    def get_is_subscribed(self, obj):
+    def get_is_subscribed(self, user):
         request = self.context['request']
         return (
             request.user.is_authenticated
-            and Subscribe.objects.filter(
-                user=request.user, author=obj
-            ).exists()
+            and user.subscriptions_to.filter(user=request.user).exists()
         )
 
 
@@ -144,10 +139,8 @@ class RecipeCreateSerializer(ModelSerializer):
     )
     ingredients = RecipeIngredientCreateSerializer(many=True, required=True)
     cooking_time = IntegerField(
-        validators=(
-            MinValueValidator(MIN_COOKING_TIME),
-            MaxValueValidator(MAX_COOKING_TIME),
-        )
+        min_value=MIN_COOKING_TIME,
+        max_value=MAX_COOKING_TIME,
     )
 
     class Meta:
@@ -163,11 +156,22 @@ class RecipeCreateSerializer(ModelSerializer):
 
     def validate(self, obj):
         ingredients = obj.get('ingredients', [])
-        ingredient_ids = [item['ingredient'].id for item in ingredients]
+        tags = obj.get('tags', [])
 
-        if len(ingredient_ids) != len(set(ingredient_ids)):
+        if not tags:
+            raise ValidationError(
+                'Рецепт должен содержать как минимум один тег.'
+            )
+        if len(tags) != len(set(tags)):
+            raise ValidationError('Теги не должны повторяться.')
+
+        if not ingredients:
+            raise ValidationError(
+                'Рецепт должен содержать как минимум один ингредиент.'
+            )
+        ingredient_ids = {ingredient['id'] for ingredient in ingredients}
+        if len(ingredient_ids) != len(ingredients):
             raise ValidationError('Ингредиенты не должны повторяться.')
-
         return obj
 
     def create(self, validated_data):
@@ -250,19 +254,18 @@ class SubscriptionSerializer(UserGETSerializer):
             'recipes_count',
         )
 
-    def get_recipes(self, obj):
-        request = self.context.get('request')
+    def get_recipes(self, user):
+        request = self.context['request']
         recipes_limit = request.query_params.get('recipes_limit')
-        queryset = obj.recipes.all()
-
+        recipes = user.recipes.all()
         if recipes_limit:
             try:
-                recipes_limit = int(recipes_limit)
-                queryset = queryset[:recipes_limit]
+                recipes = recipes[:int(recipes_limit)]
             except ValueError:
                 pass
+
         return RecipeReadSerializer(
-            queryset, many=True, context=self.context
+            recipes, many=True, context=self.context
         ).data
 
 
@@ -283,16 +286,9 @@ class SubscribeCreateSerializer(ModelSerializer):
         author = obj['author']
         if user == author:
             raise ValidationError('Нельзя подписываться на самого себя.')
-
         return obj
 
     def to_representation(self, instance):
-        request = self.context.get('request')
-        author = User.objects.filter(
-            id=instance.author.id
-        ).annotate(
-            recipes_count=Count('recipes')
-        ).first()
         return SubscriptionSerializer(
-            author, context={'request': request}
+            instance.author, context=self.context
         ).data
