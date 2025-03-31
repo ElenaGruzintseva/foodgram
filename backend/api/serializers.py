@@ -289,6 +289,11 @@ class SubscribeCreateSerializer(ModelSerializer):
         return obj
 
     def to_representation(self, instance):
+        author = User.objects.filter(
+            id=instance.author.id
+        ).annotate(
+            recipes_count=Count('recipes')
+        ).first()
         return SubscriptionSerializer(
-            instance.author, context=self.context
+            author, context=self.context
         ).data
