@@ -140,14 +140,12 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
 
     def get_queryset(self):
-        user_id = self.request.user.id
         queryset = Recipe.objects.select_related(
             'author'
         ).prefetch_related('tags', 'ingredients')
-
-        if user_id is not None:
+        if self.request.user.is_authenticated:
+            user_id = self.request.user.id
             queryset = queryset.favorited(user_id).in_shopping_cart(user_id)
-
         return queryset
 
     def get_serializer_class(self):
@@ -173,10 +171,9 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk):
-        if request.method == 'POST':
-            return add_favorite_or_shopping_list(
-                request, FavoriteSerializer, pk
-            )
+        return add_favorite_or_shopping_list(
+            request, FavoriteSerializer, pk
+        )
 
     @favorite.mapping.delete
     def delete_favorite(self, request, pk):
@@ -190,10 +187,9 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
-        if request.method == 'POST':
-            return add_favorite_or_shopping_list(
-                request, ShoppingListSerializer, pk
-            )
+        return add_favorite_or_shopping_list(
+            request, ShoppingListSerializer, pk
+        )
 
     @shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
