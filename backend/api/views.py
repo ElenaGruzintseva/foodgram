@@ -62,8 +62,6 @@ class UserViewSet(DjoserUserViewSet):
     @avatar.mapping.delete
     def delete_avatar(self, request):
         request.user.avatar.delete()
-        request.user.avatar = None
-        request.user.save()
         return Response(status=HTTP_204_NO_CONTENT)
 
     @action(
