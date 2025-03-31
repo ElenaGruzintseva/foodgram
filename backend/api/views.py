@@ -74,7 +74,7 @@ class UserViewSet(DjoserUserViewSet):
         user = request.user
         queryset = User.objects.filter(subscriptions_to__user=user).annotate(
             recipes_count=Count('recipes')
-        ).order_by('id')
+        ).order_by('user')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = SubscriptionSerializer(
@@ -110,13 +110,9 @@ class UserViewSet(DjoserUserViewSet):
         deleted_count, _ = Subscribe.objects.filter(
             user=user, author=author
         ).delete()
-        if deleted_count == 0:
-            return Response(
-                {'ошибка': 'Вы не подписаны на этого автора.'},
-                status=HTTP_400_BAD_REQUEST,
-            )
-
-        return Response(status=HTTP_204_NO_CONTENT)
+        return Response({'ошибка': 'Вы не подписаны на этого автора.'},
+                        status=HTTP_400_BAD_REQUEST if not deleted_count
+                        else Response(status=HTTP_204_NO_CONTENT))
 
 
 class TagViewSet(ReadOnlyModelViewSet):
