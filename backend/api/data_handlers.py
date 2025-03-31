@@ -15,7 +15,7 @@ def create_update_ingredients(recipe, ingredients_data):
     recipe_ingredients = [
         RecipeIngredient(
             recipe=recipe,
-            ingredient_id=ingredient['id'],
+            ingredient_id=ingredient,
             amount=ingredient['amount']
         )
         for ingredient in ingredients_data
