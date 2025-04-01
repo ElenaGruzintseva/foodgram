@@ -155,7 +155,7 @@ class RecipeCreateSerializer(ModelSerializer):
         model = Recipe
 
     def validate(self, obj):
-        ingredients = obj.get('ingredients', [])
+        ingredients = self.initial_data.get('ingredients', [])
         tags = obj.get('tags', [])
 
         if not tags:
@@ -169,8 +169,7 @@ class RecipeCreateSerializer(ModelSerializer):
             raise ValidationError(
                 'Рецепт должен содержать как минимум один ингредиент.'
             )
-        ingredient_ids = [item['ingredient'] for item in ingredients]
-        if len(ingredient_ids) != len(set(ingredient_ids)):
+        if len(set([item['id'] for item in ingredients])) < len(ingredients):
             raise ValidationError('Ингредиенты не должны повторяться.')
         return obj
 
