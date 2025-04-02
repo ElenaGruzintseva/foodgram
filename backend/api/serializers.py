@@ -1,10 +1,6 @@
 from drf_extra_fields.fields import Base64ImageField
 from django.db.models import Count
 from djoser.serializers import UserSerializer
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator,
-)
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (
     BooleanField,
@@ -79,6 +75,10 @@ class RecipeIngredientCreateSerializer(ModelSerializer):
     amount = IntegerField(
         min_value=MIN_AMOUNT,
         max_value=MAX_AMOUNT,
+        error_messages={
+            'min_value': f'Количество должно быть больше {MIN_AMOUNT}.',
+            'max_value': f'Количество должно быть меньше {MAX_AMOUNT}.'
+        }
     )
 
     class Meta:
@@ -155,22 +155,24 @@ class RecipeCreateSerializer(ModelSerializer):
         model = Recipe
 
     def validate(self, obj):
+        errors = {}
         ingredients = self.initial_data.get('ingredients', [])
         tags = obj.get('tags', [])
 
         if not tags:
-            raise ValidationError(
-                'Рецепт должен содержать как минимум один тег.'
-            )
+            errors['tags'] = 'Рецепт должен содержать как минимум один тег.'
         if len(tags) != len(set(tags)):
-            raise ValidationError('Теги не должны повторяться.')
+            errors['tags'] = 'Теги не должны повторяться.'
 
         if not ingredients:
-            raise ValidationError(
+            errors['ingredients'] = (
                 'Рецепт должен содержать как минимум один ингредиент.'
             )
         if len(set([item['id'] for item in ingredients])) < len(ingredients):
-            raise ValidationError('Ингредиенты не должны повторяться.')
+            errors['ingredients'] = 'Ингредиенты не должны повторяться.'
+
+        if errors:
+            raise ValidationError(errors)
         return obj
 
     def create(self, validated_data):

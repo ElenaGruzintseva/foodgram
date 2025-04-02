@@ -189,7 +189,7 @@ class RecipeIngredient(Model):
         return f'{self.amount} {self.ingredient}'
 
 
-class ShoppingFavoriteUserRecipe(Model):
+class UserRecipeAbstract(Model):
     user = ForeignKey(
         User,
         on_delete=CASCADE,
@@ -215,17 +215,17 @@ class ShoppingFavoriteUserRecipe(Model):
         return f'{self.recipe.name} ({self._meta.verbose_name})'
 
 
-class FavoriteRecipe(ShoppingFavoriteUserRecipe):
+class FavoriteRecipe(UserRecipeAbstract):
 
-    class Meta(ShoppingFavoriteUserRecipe.Meta):
+    class Meta(UserRecipeAbstract.Meta):
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранные'
         default_related_name = 'favorites'
 
 
-class ShoppingList(ShoppingFavoriteUserRecipe):
+class ShoppingList(UserRecipeAbstract):
 
-    class Meta(ShoppingFavoriteUserRecipe.Meta):
+    class Meta(UserRecipeAbstract.Meta):
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
         default_related_name = 'shopping_lists'

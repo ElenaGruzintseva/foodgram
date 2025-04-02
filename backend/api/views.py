@@ -32,7 +32,7 @@ from .data_handlers import (
     generate_shopping_list_pdf,
     remove_favorite_or_shopping_list,
 )
-from .pagination import BasePagination
+from .pagination import PageLimitPagination
 from recipes.models import (
     FavoriteRecipe,
     Ingredient,
@@ -45,12 +45,12 @@ from users.models import Subscribe, User
 
 
 class UserViewSet(DjoserUserViewSet):
-    pagination_class = BasePagination
+    pagination_class = PageLimitPagination
 
     @action(
         detail=False,
         methods=('put',),
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
         url_path='me/avatar',
     )
     def avatar(self, request):
@@ -67,7 +67,7 @@ class UserViewSet(DjoserUserViewSet):
     @action(
         detail=False,
         methods=('get',),
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
         url_path='subscriptions',
     )
     def subscriptions(self, request):
@@ -90,7 +90,7 @@ class UserViewSet(DjoserUserViewSet):
         detail=True,
         methods=('post',),
         url_path='subscribe',
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
     )
     def subscribe(self, request, id=None):
         author = get_object_or_404(User, pk=id)

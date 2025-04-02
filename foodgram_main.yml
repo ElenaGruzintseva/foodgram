@@ -85,6 +85,16 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "docker-compose.production.yml"
         target: "foodgram"
+    - name: Create docs directory with correct permissions
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          mkdir -p ~/foodgram/docs
+          chmod 755 ~/foodgram/docs
     - name: Copy docs folder via scp
       uses: appleboy/scp-action@master
       with:
@@ -94,6 +104,25 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "./docs/"
         target: "foodgram/"
+    - name: Create media directory with correct permissions
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          mkdir -p ~/foodgram/media/recipes
+          chmod 755 ~/foodgram/media/recipes
+    - name: Copy recipes images folder via scp
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        source: "./backend/recipes/static/"
+        target: "foodgram/media/recipes/"
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
