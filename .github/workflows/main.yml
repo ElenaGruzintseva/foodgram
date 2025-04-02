@@ -104,26 +104,6 @@ jobs:
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         source: "./docs/"
         target: "foodgram/"
-    - name: Create media directory with correct permissions
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
-          mkdir -p ~/foodgram/media/recipes
-          chmod 755 ~/foodgram/media/recipes
-    - name: Copy recipes images from host to server
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        source: "/home/lena/Dev/foodgram/backend/recipes/static/"
-        target: "/home/yc-user/foodgram/media/recipes/"
-        recursive: true
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
       with:
@@ -138,7 +118,6 @@ jobs:
           sudo docker compose -f docker-compose.production.yml up -d
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
           sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/static/ /static/
-          sudo docker compose -f docker-compose.production.yml exec backend cp -r /home/yc-user/foodgram/media/recipes/. /app/media/recipes/
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py create_superuser -u
           sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_users
