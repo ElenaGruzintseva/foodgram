@@ -121,7 +121,7 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        source: "./backend/recipes/static/"
+        source: "./backend/recipes/static/images/"
         target: "foodgram/media/recipes/"
     - name: Executing remote ssh commands to deploy
       uses: appleboy/ssh-action@master
