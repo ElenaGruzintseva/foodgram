@@ -13,7 +13,7 @@ services:
       - foodgram_network
 
   backend:
-    build: ../backend/
+    build: ./local/
     env_file: .env
     volumes:
       - static:/app/static
