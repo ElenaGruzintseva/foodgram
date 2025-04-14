@@ -90,4 +90,3 @@ image: vasiapupkin/foodgram_gateway
 
 
 ### [ElenaGruzintseva](https://github.com/ElenaGruzintseva)
-
