@@ -21,7 +21,7 @@ Foodgram - кулинарная веб-площадка с обширной ба
  - Docker Compose
  - GitHub Actions
 
-### Как развернуть проект не используя workflow
+### Как развернуть проект локально не используя workflow
 
 Убедитесь, что на вашем компьютере установлены Docker и Docker Compose.
 
@@ -32,9 +32,7 @@ git clone https://github.com/ElenaGruzintseva/foodgram.git
 cd foodgram
 ```
 
-Выполните шаги в backend/Dockerfile, чтобы использовать локально docker-compose.yml.
-
-Создайте файл .env в директориях проекта backend и infra и добавьте необходимые переменные окружения. Пример:
+Создайте файл .env в директории local и добавьте необходимые переменные окружения. Пример:
 
 ```
 POSTGRES_DB=foodgram_db_1
@@ -49,14 +47,15 @@ SUPERUSER_USERNAME = superuser_username
 SUPERUSER_EMAIL = superuser@mail.ru
 SUPERUSER_PASSWORD = superuser_password
 ```
+В foodgram/settings явно укажите ALLOWED_HOSTS = ['127.0.0.1']
 
-Запустите Docker Compose для создания и запуска контейнеров:
+Находясь в директории local запустите Docker Compose для создания и запуска контейнеров:
 
 ```
 sudo docker-compose up -d
 ```
 
-Проект будет доступен здесь http://localhost:7000
+Проект будет доступен здесь http://localhost:8000
 
 ### Для автоматизации развертывания проекта можно использовать GitHub Actions
 
