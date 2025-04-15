@@ -47,6 +47,7 @@ SUPERUSER_USERNAME = superuser_username
 SUPERUSER_EMAIL = superuser@mail.ru
 SUPERUSER_PASSWORD = superuser_password
 ```
+
 В foodgram/settings явно укажите ALLOWED_HOSTS = ['127.0.0.1']
 
 Находясь в директории local запустите Docker Compose для создания и запуска контейнеров:
