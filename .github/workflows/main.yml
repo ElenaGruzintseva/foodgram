@@ -77,6 +77,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
+      - name: Set up KUBECONFIG
+        run: |
+          mkdir -p ~/.kube
+          echo "$KUBECONFIG" > ~/.kube/config
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
       - name: Ungdate Kubernetes Deployment (Backend)
         run: |
           kubectl set image deployment/foodgram-backend-deployment foodgram-backend=${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
