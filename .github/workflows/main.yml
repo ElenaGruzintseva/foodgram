@@ -84,6 +84,14 @@ jobs:
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
 
+      - name: Test Kubernetes connection
+        run: kubectl get pods
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f deployment.yaml
+          kubectl apply -f ingress.yaml
+
       - name: Ungdate Kubernetes Deployment (Backend)
         run: |
           kubectl set image deployment/foodgram-backend-deployment foodgram-backend=${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
