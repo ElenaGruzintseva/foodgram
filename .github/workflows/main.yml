@@ -69,67 +69,61 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs:
+    needs: 
       - build_and_push_to_docker_hub
       - build_frontend_and_push_to_docker_hub
       - build_gateway_and_push_to_docker_hub
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Set up KUBECONFIG
-        run: |
-          mkdir -p ~/.kube
-          echo "$KUBECONFIG" > ~/.kube/config
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-      - name: Test Kubernetes connection
-        run: kubectl get pods
-
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f ingress.yaml
-
-      - name: Ungdate Kubernetes Deployment (Backend)
-        run: |
-          kubectl set image deployment/foodgram-backend-deployment foodgram-backend=${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-      - name: Run collectstatic in Backend Pod
-        run: |
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py collectstatic --noinput
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-      
-      - name: Copy static files in Backend Pod
-        run: |
-          kubectl exec deployment/foodgram-backend-deployment -- cp -r /app/static/ /static/
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-      - name: Run migrations in Backend Pod
-        run: |
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py migrate
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-      - name: Create superuser in Backend Pod
-        run: |
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py create_superuser -u
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
-
-      - name: Load initial data in Backend Pod
-        run: |
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py load_users
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py load_tags
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py load_ingredients
-          kubectl exec deployment/foodgram-backend-deployment -- python manage.py load_recipes
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+    - name: Checkout repo
+      uses: actions/checkout@v3
+    - name: Copy docker-compose.yml via ssh
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        source: "docker-compose.production.yml"
+        target: "foodgram"
+    - name: Create docs directory with correct permissions
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          mkdir -p ~/foodgram/docs
+          chmod 755 ~/foodgram/docs
+    - name: Copy docs folder via scp
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        source: "./docs/"
+        target: "foodgram/"
+    - name: Executing remote ssh commands to deploy
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          cd foodgram
+          sudo docker compose -f docker-compose.production.yml pull
+          sudo docker compose -f docker-compose.production.yml down
+          sudo docker compose -f docker-compose.production.yml up -d
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
+          sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/static/ /static/
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py create_superuser -u
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_users
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
+          sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_recipes
 
   send_message:
     runs-on: ubuntu-latest
