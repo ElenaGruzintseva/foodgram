@@ -1,6 +1,6 @@
 ![Workflow Status](https://github.com/ElenaGruzintseva/foodgram/actions/workflows/main.yml/badge.svg)
 
-Проект доступен по адресу: https://foodgram21.ddnsking.com
+Проект доступен по адресу: https://food-gram-71.ru
 
 # Foodgram
 
