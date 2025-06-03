@@ -8,13 +8,11 @@ volumes:
 services:
   db:
     image: postgres:13.10
-    restart: always
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
   backend:
     image: elenagruzintseva/foodgram_backend
-    restart: always
     env_file: .env
     volumes:
       - static:/static
@@ -23,14 +21,12 @@ services:
       - db
   frontend:
     image: elenagruzintseva/foodgram_frontend
-    restart: always
     env_file: .env
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
   gateway:
     image: elenagruzintseva/foodgram_gateway
-    restart: always
     env_file: .env
     volumes:
       - static:/static
